@@ -2,3 +2,4 @@ flask
 SQLAlchemy
 flask-SQLAlchemy
 psycopg2-binary
+debugpy
