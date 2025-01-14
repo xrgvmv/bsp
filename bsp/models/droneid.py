@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from ..database import db
 
 class DroneID(db.Model):
     __tablename__ = 'droneid'
@@ -56,5 +55,32 @@ class DroneID(db.Model):
         self.uuid_len = uuid_len
         self.uuid = uuid
         self.crc = crc
-
-
+ 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'timestamp': self.timestamp,
+            'pkt_len': self.pkt_len,
+            'unk': self.unk,
+            'version': self.version,
+            'seq_number': self.seq_number,
+            'state_info': self.state_info,
+            'serial_number': self.serial_number,
+            'longitude': self.longitude,
+            'latitude': self.latitude,
+            'altitude': self.altitude,
+            'height': self.height,
+            'v_north': self.v_north,
+            'v_east': self.v_east,
+            'v_up': self.v_up,
+            'd_1_angle': self.d_1_angle,
+            'app_lat': self.app_lat,
+            'app_lon': self.app_lon,
+            'longitude_home': self.longitude_home,
+            'latitude_home': self.latitude_home,
+            'device_type_id': self.device_type_id,
+            'device_type': self.device_type,
+            'uuid_len': self.uuid_len,
+            'uuid': self.uuid,
+            'crc': self.crc
+        }

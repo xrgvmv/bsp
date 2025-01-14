@@ -20,6 +20,5 @@ def add_data():
 
 @main.route('/map_view')
 def map_view():
-    remote_id = RemoteID.query.order_by(RemoteID.id.desc()).first()
-
-    return render_template('map.html', remote_id=remote_id)
+    remote_id = RemoteID.query.first()
+    return render_template('map.html', remote_id=remote_id.to_dict()) 

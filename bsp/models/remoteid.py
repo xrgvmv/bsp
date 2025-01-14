@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from ..database import db
 
 class RemoteID(db.Model):
     __tablename__ = 'remoteid'
@@ -40,3 +39,24 @@ class RemoteID(db.Model):
         self.speed_accuracy = speed_accuracy
         self.ts_accuracy = ts_accuracy
         self.timestamp = timestamp
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'status': self.status,
+            'direction': self.direction,
+            'speed_horizontal': self.speed_horizontal,
+            'speed_vertical': self.speed_vertical,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'altitude_baro': self.altitude_baro,
+            'altitude_geo': self.altitude_geo,
+            'height_type': self.height_type,
+            'height': self.height,
+            'horiz_accuracy': self.horiz_accuracy,
+            'vert_accuracy': self.vert_accuracy,
+            'baro_accuracy': self.baro_accuracy,
+            'speed_accuracy': self.speed_accuracy,
+            'ts_accuracy': self.ts_accuracy,
+            'timestamp': self.timestamp
+        }

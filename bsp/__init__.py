@@ -13,6 +13,7 @@ def create_app(config_filename='config.py'):
     db.init_app(app)
     with app.app_context():
         db.create_all()
+        
     from bsp.models.droneid import DroneID
     from bsp.models.remoteid import RemoteID
 
