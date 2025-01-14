@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mapa z danymi RemoteID</title>
+    <meta http-equiv="refresh" content="30">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mapa z danymi RemoteID</h1>
+    <div id="map"></div>
+
+    <script>
+        var remoteIdData = {{ remote_id | tojson }};
+        
+        var map = L.map('map').setView([remoteIdData.latitude, remoteIdData.longitude], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker = L.marker([remoteIdData.latitude, remoteIdData.longitude]).addTo(map);
+        marker.bindPopup("<b>Status:</b> " + remoteIdData.status + "<br><b>Prędkość horyzontalna:</b> " + remoteIdData.speed_horizontal + " m/s").openPopup();
+    </script>
+</body>
+</html>
