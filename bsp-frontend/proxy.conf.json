@@ -1,0 +1,10 @@
+{
+  "/api": {
+    "target": "http://web:5000",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api": ""
+    }
+  }
+}
