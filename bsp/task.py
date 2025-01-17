@@ -1,7 +1,7 @@
 import asyncio
-from bsp.functions import add_random_data_from_drone_to_db
+from bsp.functions import generate_random_data_for_multiple_drones
 
 async def periodic_task():
     while True:
-        add_random_data_from_drone_to_db()
+        generate_random_data_for_multiple_drones()
         await asyncio.sleep(30)

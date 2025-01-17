@@ -8,16 +8,11 @@
 
 import threading
 from bsp import create_app
-from bsp.task import periodic_task
-import asyncio
+from bsp.functions import start_periodic_task
 
 app = create_app()
 
-def start_periodic_task():
-    with app.app_context():
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(periodic_task())
+start_periodic_task()
 
 if __name__ == '__main__':
     task_thread = threading.Thread(target=start_periodic_task)
