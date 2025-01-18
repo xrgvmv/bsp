@@ -7,7 +7,7 @@ from bsp.functions import generate_initial_drone_info
 
 main = Blueprint('main', __name__)
 
-@main.route('/api/generate_initial_drone_info', methods=['POST'])
+@main.route('/api/generate_initial_drone_info', methods=['GET'])
 def generate_initial_drone_info_route():
     try:
         generate_initial_drone_info()

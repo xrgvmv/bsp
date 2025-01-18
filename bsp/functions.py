@@ -6,9 +6,6 @@ from bsp.models.droneid_movement import DroneIDMovement
 from bsp.models.remoteid_info import RemoteIDInfo
 from bsp.models.remoteid_movement import RemoteIDMovement
 
-def random_coordinate(base, variance):
-    return base + random.uniform(-variance, variance)
-
 def generate_initial_drone_info():
     base_latitude = 54.352025
     base_longitude = 18.646638
@@ -41,6 +38,9 @@ def generate_initial_drone_info():
         db.session.add(new_remoteid_info)
 
     db.session.commit()
+
+def random_coordinate(base, variance):
+    return base + random.uniform(-variance, variance)
 
 def generate_random_data_for_multiple_drones():
     base_latitude = 54.352025
