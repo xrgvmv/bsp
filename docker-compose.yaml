@@ -12,6 +12,20 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/bsp
     depends_on:
       - db
+    networks:
+      - bsp_network
+
+  frontend:
+    # image: bsp_frontend-test:latest
+    build: ./bsp-frontend
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - web
+    networks:
+      - bsp_network
 
   db:
     image: postgres:latest
@@ -23,6 +37,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bsp_network
 
 volumes:
   postgres_data:
+
+networks:
+  bsp_network:
+    driver: bridge
