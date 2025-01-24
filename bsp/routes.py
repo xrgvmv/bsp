@@ -19,7 +19,7 @@ def get_remoteid_info():
         # else:
         #     return jsonify({"message": "No data"}), 404
         
-        return jsonify([ri for ri in global_generator.flying_remoteid_info]), 200
+        return jsonify({"remoteid_info_list", [ri for ri in global_generator.flying_remoteid_info]}), 200
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -33,7 +33,7 @@ def get_droneid_info():
         # else:
         #     return jsonify({"message": "No data"}), 404
 
-        return jsonify([di for di in global_generator.flying_droneid_info]), 200
+        return jsonify({"droneid_info_list": [di for di in global_generator.flying_droneid_info]}), 200
 
         
     except Exception as e:
@@ -54,7 +54,7 @@ def get_remoteid_movement():
             .join(subquery, RemoteIDMovement.id == subquery.c.max_id)
         
         if remote_id_movements:
-            return jsonify([rim for rim in remote_id_movements]), 200
+            return jsonify({"remoteid_movement": [rim for rim in remote_id_movements]}), 200
         else:
             return jsonify({"message": "No data"}), 404
     except Exception as e:
@@ -75,7 +75,7 @@ def get_droneid_movement():
             .join(subquery, DroneIDMovement.id == subquery.c.max_id)
         
         if drone_id_movements:
-            return jsonify([dim for dim in drone_id_movements]), 200
+            return jsonify({"droneid_movement": [dim for dim in drone_id_movements]}), 200
         else:
             return jsonify({"message": "No data"}), 404
     except Exception as e:
