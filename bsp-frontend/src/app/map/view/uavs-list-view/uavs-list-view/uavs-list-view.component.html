@@ -1,0 +1,41 @@
+<div class="uavs-list-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>BSP</mat-card-title>
+      <mat-card-subtitle>Znalezione BSP:</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-list>
+      <mat-list-item
+        *ngFor="let drone of combinedDroneData"
+        (click)="onDroneClick(drone)"
+        [class.selected]="selectedDrone === drone"
+      >
+        <mat-icon matListItemIcon>keyboard_command</mat-icon>
+        <div matListItemTitle>{{ drone.type }} BSP: {{ drone.info.id }}</div>
+        <div matListItemLine>
+          Lat: {{ drone.movement.latitude.toFixed(4) }}, Long:
+          {{ drone.movement.longitude.toFixed(4) }}
+        </div>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    </mat-list>
+
+    <mat-card-footer>
+      <p>Ilość śledzonych BSP: {{ combinedDroneData.length }}</p>
+    </mat-card-footer>
+  </mat-card>
+</div>
+
+<div class="drone-details" *ngIf="selectedDrone">
+  <button mat-icon-button (click)="closeDroneDetails()" class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
+  <h2>{{ selectedDrone.type }} BSP: {{ selectedDrone.info.id }}</h2>
+  <p><b>Numer seryjny:</b> {{ selectedDrone.info.serial_number }}</p>
+  <p>
+    <b>Prędkość:</b> Horizontal:
+    {{ selectedDrone.movement.speed_horizontal.toFixed(1) }}, Vertical:
+    {{ selectedDrone.movement.speed_vertical.toFixed(1) }}
+  </p>
+</div>

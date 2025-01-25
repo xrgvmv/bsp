@@ -1,0 +1,51 @@
+.uavs-list-container {
+  width: 300px;
+  position: absolute;
+  top: 80px;
+  left: 10px;
+  z-index: 1000;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+mat-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+mat-list-item {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+mat-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+mat-divider {
+  margin: 8px 0;
+}
+
+mat-card-footer {
+  padding: 10px;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.drone-details {
+  position: absolute;
+  top: 80px;
+  right: 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 16px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 300px;
+  z-index: 1000;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
