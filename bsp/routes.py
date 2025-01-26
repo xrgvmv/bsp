@@ -3,7 +3,7 @@ from bsp.models.droneid_info import DroneIDInfo
 from bsp.models.droneid_movement import DroneIDMovement
 from bsp.models.remoteid_info import RemoteIDInfo
 from bsp.models.remoteid_movement import RemoteIDMovement
-from bsp.packets_generator import global_generator
+from bsp.packets_generator import packets_generator
 from sqlalchemy import func
 
 
@@ -13,36 +13,34 @@ main = Blueprint('main', __name__)
 @main.route('/api/get_remoteid_info', methods=['GET'])
 def get_remoteid_info():
     try:
-        # remote_id_info = RemoteIDInfo.query.all()
-        # if remote_id_info:
-        #     return jsonify([ri.to_dict() for ri in remote_id_info]), 200
-        # else:
-        #     return jsonify({"message": "No data"}), 404
+        id_list = packets_generator.get_flying_remoteid_info_ids()
+        remote_id_infos = RemoteIDInfo.query.filter(RemoteIDInfo.id.in_(id_list))
+        if remote_id_infos:
+            return jsonify({"remoteid_info_list": [ri for ri in remote_id_infos]}), 200
+        else:
+            return jsonify({"message": "No data"}), 404
         
-        return jsonify({"remoteid_info_list": [ri for ri in global_generator.flying_remoteid_info]}), 200
-    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @main.route('/api/get_droneid_info', methods=['GET'])
 def get_droneid_info():
     try:
-        # drone_id_info = DroneIDInfo.query.all()
-        # if drone_id_info:
-        #     return jsonify([di.to_dict() for di in drone_id_info]), 200 
-        # else:
-        #     return jsonify({"message": "No data"}), 404
+        id_list = packets_generator.get_flying_droneid_info_ids()
+        drone_id_infos = DroneIDInfo.query.filter(DroneIDInfo.id.in_(id_list))
+        if drone_id_infos:
+            return jsonify({"droneid_info_list": [di for di in drone_id_infos]}), 200
+        else:
+            return jsonify({"message": "No data"}), 404
 
-        return jsonify({"droneid_info_list": [di for di in global_generator.flying_droneid_info]}), 200
-
-        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @main.route('/api/get_remoteid_movement', methods=['GET'])
 def get_remoteid_movement():
     try:
-        id_list = [drone.id for drone in global_generator.flying_remoteid_info]
+        id_list = packets_generator.get_flying_remoteid_info_ids()
         
         subquery = RemoteIDMovement.query \
             .filter(RemoteIDMovement.drone_id.in_(id_list)) \
@@ -63,7 +61,7 @@ def get_remoteid_movement():
 @main.route('/api/get_droneid_movement', methods=['GET'])
 def get_droneid_movement():
     try:
-        id_list = [drone.id for drone in global_generator.flying_droneid_info]
+        id_list = packets_generator.get_flying_droneid_info_ids()
 
         subquery = DroneIDMovement.query \
             .filter(DroneIDMovement.drone_id.in_(id_list)) \
