@@ -134,8 +134,8 @@ export class MapViewComponent implements OnInit {
         }).addTo(this.map!);
 
         marker.bindPopup(
-          `<b>Rodzaj protokołu:</b> ${type}<br><b>ID:</b> ${
-            drone.id || drone.remote_id
+          `<b>Rodzaj protokołu:</b> ${type}<br><b>Numer seryjny:</b> ${
+            drone.serial_number || drone.serial_number
           }<br><b>Latitude:</b> ${movement.latitude}<br><b>Longitude:</b> ${
             movement.longitude
           }`
@@ -144,7 +144,7 @@ export class MapViewComponent implements OnInit {
 
       } else {
         console.log(
-          `No movement data for drone ID: ${drone.id || drone.remote_id}`
+          `No movement data for drone ID: ${drone.id || drone.remote_id} Serial number: ${drone.serial_number}`
         );
       }
     });
