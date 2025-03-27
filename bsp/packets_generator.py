@@ -35,10 +35,10 @@ class packets_generator():
     BASE_LATITUDE = 54.352025 # in degress
     BASE_LONGITUDE = 18.646638 # in degress
     BASE_VARIANCE = 0.01 # in degress
-    ACCELERATION_CHANGE_MAX = 0.01 # degress / s^2
-    CENTER_ATTRACTION = 0.1 # in [degress / s^2] / degress
+    ACCELERATION_CHANGE_MAX = 0.0002 # degress / s^2
+    CENTER_ATTRACTION = 0.01 # in [degress / s^2] / degress
     GENERATION_PERIOD = 1 # in seconds
-    NUMBER_OF_DRONES = 5 # per protocol
+    NUMBER_OF_DRONES = 4 # per protocol
     ACCELERATION_UPDATE_PERIOD = 5 # in seconds
 
 
@@ -112,17 +112,18 @@ class packets_generator():
         if packets_generator.last_acceleration_update is None or time.time() > packets_generator.last_acceleration_update + packets_generator.ACCELERATION_UPDATE_PERIOD:
             packets_generator.last_acceleration_update = time.time()
             for drone_generation_info in packets_generator.drone_generation_infos: 
-                drone_generation_info.x_acceleration += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
-                drone_generation_info.x_acceleration += (drone_generation_info.start_x_position - drone_generation_info.x_position) \
-                    * packets_generator.CENTER_ATTRACTION
-                drone_generation_info.y_acceleration += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
-                drone_generation_info.y_acceleration += (drone_generation_info.start_y_position - drone_generation_info.y_position) \
-                    * packets_generator.CENTER_ATTRACTION
+            #     drone_generation_info.x_acceleration += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
+            #     drone_generation_info.x_acceleration += (drone_generation_info.start_x_position - drone_generation_info.x_position) \
+            #         * packets_generator.CENTER_ATTRACTION
+            #     drone_generation_info.y_acceleration += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
+            #     drone_generation_info.y_acceleration += (drone_generation_info.start_y_position - drone_generation_info.y_position) \
+            #         * packets_generator.CENTER_ATTRACTION
+                drone_generation_info.x_velocity += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
+                drone_generation_info.y_velocity += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
 
         for drone_generation_info in packets_generator.drone_generation_infos: 
-            drone_generation_info.x_velocity += drone_generation_info.x_acceleration * packets_generator.GENERATION_PERIOD
-            drone_generation_info.y_velocity += drone_generation_info.y_acceleration * packets_generator.GENERATION_PERIOD
-
+            # drone_generation_info.x_velocity += drone_generation_info.x_acceleration * packets_generator.GENERATION_PERIOD
+            # drone_generation_info.y_velocity += drone_generation_info.y_acceleration * packets_generator.GENERATION_PERIOD
             drone_generation_info.x_position += drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD
             drone_generation_info.y_position += drone_generation_info.y_velocity * packets_generator.GENERATION_PERIOD
 
@@ -140,8 +141,8 @@ class packets_generator():
                     direction=random.uniform(0, 360),
                     speed_horizontal=random.uniform(0, 20), 
                     speed_vertical=random.uniform(-5, 5),  
-                    latitude=drone_generation_info.y_position,
-                    longitude=drone_generation_info.x_position,
+                    latitude=drone_generation_info.x_position,
+                    longitude=drone_generation_info.y_position,
                     altitude_baro=random.uniform(50, 200),   
                     altitude_geo=random.uniform(45, 195),    
                     height=random.uniform(0, 100)       
@@ -154,16 +155,16 @@ class packets_generator():
                     drone_id=drone_generation_info.info_id,
                     timestamp=random.randint(1234567890, 1234567890 + 10000),
                     pkt_len=random.randint(100, 500),
-                    latitude=drone_generation_info.y_position,
-                    longitude=drone_generation_info.x_position,
+                    latitude=drone_generation_info.x_position,
+                    longitude=drone_generation_info.y_position,
                     altitude=random.uniform(50, 200),
                     height=random.uniform(0, 100),
                     v_north=random.uniform(-10, 10),
                     v_east=random.uniform(-10, 10),
                     v_up=random.uniform(-5, 5),
                     d_1_angle=random.uniform(0, 360),
-                    app_lat= drone_generation_info.y_position,
-                    app_lon= drone_generation_info.x_position,
+                    app_lat= drone_generation_info.x_position,
+                    app_lon= drone_generation_info.y_position,
                     longitude_home=drone_generation_info.start_y_position,
                     latitude_home=drone_generation_info.start_x_position
                 )
