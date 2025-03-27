@@ -124,7 +124,6 @@ class packets_generator():
         for drone_generation_info in packets_generator.drone_generation_infos: 
             # drone_generation_info.x_velocity += drone_generation_info.x_acceleration * packets_generator.GENERATION_PERIOD
             # drone_generation_info.y_velocity += drone_generation_info.y_acceleration * packets_generator.GENERATION_PERIOD
-
             drone_generation_info.x_position += drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD
             drone_generation_info.y_position += drone_generation_info.y_velocity * packets_generator.GENERATION_PERIOD
 
