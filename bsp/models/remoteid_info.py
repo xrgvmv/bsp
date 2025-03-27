@@ -32,19 +32,6 @@ from ..database import db
 class RemoteIDInfo(db.Model):
     __tablename__ = 'remoteid_info'
 
-    lng: float = db.Column(db.Float, nullable=True)
-    lat: float = db.Column(db.Float, nullable=True)
-    altitude: int = db.Column(db.Integer, nullable=True)
-    height: int = db.Column(db.Integer, nullable=True)
-    x_speed: float = db.Column(db.Float, nullable=True)
-    y_speed: float = db.Column(db.Float, nullable=True)
-    z_speed: float = db.Column(db.Float, nullable=True)
-    pitch: float = db.Column(db.Float, nullable=True)
-    roll: float = db.Column(db.Float, nullable=True)
-    yaw: float = db.Column(db.Float, nullable=True)
-    spoofed: bool = db.Column(db.Boolean, nullable=True)
-    timestamp: datetime = db.Column(db.DateTime, nullable=True)   
-
     oui: str = db.Column(db.String(20), nullable=True)
     serial_number: str = db.Column(db.String(20), nullable=False)
     uuid: str = db.Column(db.String(20), nullable=False)
