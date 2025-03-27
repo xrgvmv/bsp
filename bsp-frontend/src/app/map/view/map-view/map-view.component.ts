@@ -46,7 +46,7 @@ export class MapViewComponent implements OnInit {
 
     setInterval(() => {
       this.startFetchingMapView();
-    }, 5000); // 5s
+    }, 500); // 0.5s
   }
 
   private initMap(): void {
