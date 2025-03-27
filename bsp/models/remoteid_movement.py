@@ -1,3 +1,4 @@
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 from dataclasses import dataclass
 from ..database import db
@@ -7,14 +8,16 @@ class RemoteIDMovement(db.Model):
     __tablename__ = 'remoteid_movement'
 
     id: int = db.Column(db.Integer, primary_key=True)
-    drone_id: int = db.Column(db.Integer, db.ForeignKey('remoteid_info.id'), nullable=False)
-    status: int = db.Column(db.SmallInteger, nullable=False)
-    timestamp: float = db.Column(db.Float, nullable=False)
-    direction: float = db.Column(db.Float, nullable=False)
-    speed_horizontal: float = db.Column(db.Float, nullable=False)
-    speed_vertical: float = db.Column(db.Float, nullable=False)
-    latitude: float = db.Column(db.Float, nullable=False)
-    longitude: float = db.Column(db.Float, nullable=False)
-    altitude_baro: float = db.Column(db.Float, nullable=False)
-    altitude_geo: float = db.Column(db.Float, nullable=False)
-    height: float = db.Column(db.Float, nullable=False)
+    flight_id: int = db.Column(db.Integer, db.ForeignKey('remoteid_flight.id'), nullable=False)
+    lng: float = db.Column(db.Float, nullable=True)
+    lat: float = db.Column(db.Float, nullable=True)
+    altitude: int = db.Column(db.Integer, nullable=True)
+    height: int = db.Column(db.Integer, nullable=True)
+    x_speed: float = db.Column(db.Float, nullable=True)
+    y_speed: float = db.Column(db.Float, nullable=True)
+    z_speed: float = db.Column(db.Float, nullable=True)
+    pitch: float = db.Column(db.Float, nullable=True)
+    roll: float = db.Column(db.Float, nullable=True)
+    yaw: float = db.Column(db.Float, nullable=True)
+    spoofed: bool = db.Column(db.Boolean, nullable=True)
+    timestamp: datetime = db.Column(db.DateTime, nullable=True)  

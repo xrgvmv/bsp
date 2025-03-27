@@ -5,8 +5,9 @@ from enum import Enum
 from .database import db
 from bsp.models.droneid_info import DroneIDInfo
 from bsp.models.droneid_movement import DroneIDMovement
+from bsp.models.droneid_flight import DroneIDFlight
 from bsp.models.remoteid_info import RemoteIDInfo
-from bsp.models.remoteid_movement import RemoteIDMovement
+from bsp.models.remoteid_flight import RemoteIDFlight
 from flask import current_app
 
 class PacketType(Enum):
@@ -23,32 +24,24 @@ class drone_generation_info():
         self.y_position = start_y_position
         self.x_velocity = 0
         self.y_velocity = 0
-        self.x_acceleration = 0
-        self.y_acceleration = 0
+
 
 
 class packets_generator():
     drone_generation_infos = []
     generating_new_packets = False
-    last_acceleration_update = 0
 
     BASE_LATITUDE = 54.352025 # in degress
     BASE_LONGITUDE = 18.646638 # in degress
     BASE_VARIANCE = 0.01 # in degress
-    ACCELERATION_CHANGE_MAX = 0.0002 # degress / s^2
-    CENTER_ATTRACTION = 0.01 # in [degress / s^2] / degress
     GENERATION_PERIOD = 1 # in seconds
     NUMBER_OF_DRONES = 4 # per protocol
-    ACCELERATION_UPDATE_PERIOD = 5 # in seconds
-
 
     def __init__(self):
-        print("created generator")
         pass
 
     def start_generating_packets():
         if not packets_generator.generating_new_packets:
-            print("starting generating")
             packets_generator.generate_initial_drone_info()
             packets_generator.generating_new_packets = True
             threading.Thread(target=packets_generator.generate_packets_task, args=(current_app.app_context(), )).start() 
@@ -100,8 +93,10 @@ class packets_generator():
         db.session.commit() 
 
         for i in range(packets_generator.NUMBER_OF_DRONES):
-            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.droneid, packets_generator.BASE_LATITUDE + packets_generator.random_variance(), packets_generator.BASE_LONGITUDE + packets_generator.random_variance(), flying_droneid_info[i].id))
-            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.remoteid, packets_generator.BASE_LATITUDE + packets_generator.random_variance(), packets_generator.BASE_LONGITUDE + packets_generator.random_variance(), flying_remoteid_info[i].id))
+            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.droneid, packets_generator.BASE_LATITUDE + packets_generator.random_variance(), \
+                                                                                  packets_generator.BASE_LONGITUDE + packets_generator.random_variance(), flying_droneid_info[i].id))
+            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.remoteid, packets_generator.BASE_LATITUDE + packets_generator.random_variance(), \
+                                                                                  packets_generator.BASE_LONGITUDE + packets_generator.random_variance(), flying_remoteid_info[i].id))
 
 
     def random_variance():
@@ -112,18 +107,10 @@ class packets_generator():
         if packets_generator.last_acceleration_update is None or time.time() > packets_generator.last_acceleration_update + packets_generator.ACCELERATION_UPDATE_PERIOD:
             packets_generator.last_acceleration_update = time.time()
             for drone_generation_info in packets_generator.drone_generation_infos: 
-            #     drone_generation_info.x_acceleration += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
-            #     drone_generation_info.x_acceleration += (drone_generation_info.start_x_position - drone_generation_info.x_position) \
-            #         * packets_generator.CENTER_ATTRACTION
-            #     drone_generation_info.y_acceleration += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
-            #     drone_generation_info.y_acceleration += (drone_generation_info.start_y_position - drone_generation_info.y_position) \
-            #         * packets_generator.CENTER_ATTRACTION
                 drone_generation_info.x_velocity += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
                 drone_generation_info.y_velocity += random.uniform(-packets_generator.ACCELERATION_CHANGE_MAX, packets_generator.ACCELERATION_CHANGE_MAX)
 
         for drone_generation_info in packets_generator.drone_generation_infos: 
-            # drone_generation_info.x_velocity += drone_generation_info.x_acceleration * packets_generator.GENERATION_PERIOD
-            # drone_generation_info.y_velocity += drone_generation_info.y_acceleration * packets_generator.GENERATION_PERIOD
             drone_generation_info.x_position += drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD
             drone_generation_info.y_position += drone_generation_info.y_velocity * packets_generator.GENERATION_PERIOD
 
