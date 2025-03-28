@@ -32,6 +32,8 @@ from ..database import db
 class RemoteIDInfo(db.Model):
     __tablename__ = 'remoteid_info'
 
+    id: int = db.Column(db.Integer, primary_key=True)
+
     oui: str = db.Column(db.String(20), nullable=True)
     serial_number: str = db.Column(db.String(20), nullable=False)
     uuid: str = db.Column(db.String(20), nullable=False)
