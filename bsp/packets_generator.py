@@ -57,7 +57,7 @@ class packets_generator():
             #First we search for exisitng drones in our db
             [droneid_info_ids, remoteid_info_ids] = packets_generator.get_drone_infos_ids_from_db() 
 
-            #If we don't have enought of them, we create now droneid_infos/remoteid_infos
+            #If we don't have enough of them, we create now droneid_infos/remoteid_infos
             if len(droneid_info_ids) < packets_generator.NUMBER_OF_DRONES or len(remoteid_info_ids) < packets_generator.NUMBER_OF_DRONES:
                [droneid_info_ids, remoteid_info_ids] = packets_generator.generate_initial_drone_info()
 
