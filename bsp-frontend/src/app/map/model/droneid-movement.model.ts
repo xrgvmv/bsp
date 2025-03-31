@@ -1,18 +1,17 @@
 export interface DroneidMovement {
-  id: number;
-  drone_id: number;
-  timestamp: number;
-  pkt_len: number;
-  longitude: number;
-  latitude: number;
   altitude: number;
+  droneid_flight_id: number;
+  droneid_info_id: number;
+  gps_time: string;
   height: number;
-  v_north: number;
+  id: number;
+  latitude: number;
+  longitude: number;
+  rc_latitude: number;
+  rc_longitude: number;
+  state_info: number;
   v_east: number;
+  v_north: number;
   v_up: number;
-  d_1_angle: number;
-  app_lat: number;
-  app_lon: number;
-  longitude_home: number;
-  latitude_home: number;
+  yaw: number;
 }

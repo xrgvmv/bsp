@@ -5,16 +5,18 @@ import {
 import * as L from 'leaflet';
 import { combineLatest, Observable } from 'rxjs';
 import { MapService } from '../../service/map.service';
-import { AboutViewComponent } from '../about-view/about-view/about-view.component';
-import { UavsListViewComponent } from '../uavs-list-view/uavs-list-view/uavs-list-view.component';
+import { AboutViewComponent } from '../about-view/about-view.component';
+import { UavsListViewComponent } from '../uavs-list-view/uavs-list-view.component';
 import { RemoteidMovement } from '../../model/remoteid-movement.model';
 import { DroneidMovement } from '../../model/droneid-movement.model';
 import { Remoteid } from '../../model/remoteid.model';
 import { Droneid } from '../../model/droneid.model';
+import { HistoricDataViewIconComponent} from '../historic-data-view-icon/historic-data-view-icon.component';
+import { ImportViewIconComponent } from '../import-view-icon/import-view-icon.component';
 
 @Component({
   selector: 'app-map-view',
-  imports: [AboutViewComponent, UavsListViewComponent],
+  imports: [AboutViewComponent, UavsListViewComponent, HistoricDataViewIconComponent, ImportViewIconComponent],
   templateUrl: './map-view.component.html',
   styleUrl: './map-view.component.css',
 })
@@ -125,7 +127,7 @@ export class MapViewComponent implements OnInit {
   ): void {
     drones.forEach((drone) => {
       const movement = movements.find(
-        (m: any) => m.drone_id === drone.id || m.remote_id === drone.id
+        (m: any) => m.drone_id === drone.id || m.id === drone.id
       );
 
       if (movement) {
