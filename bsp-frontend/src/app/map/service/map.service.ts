@@ -13,7 +13,7 @@ export class MapService {
   constructor(private http: HttpClient) {}
 
   getRemoteidInfo(): Observable<Remoteid_info_list> {
-    return this.http.get<Remoteid_info_list>('/api/get_remoteid_info');
+    return this.http.get<Remoteid_info_list>('/api/get_current_remoteid_info');
   }
 
   getRemoteidMovementInfo(): Observable<Remoteid_movement_list> {
@@ -21,7 +21,7 @@ export class MapService {
   }
 
   getDroneidInfo(): Observable<Droneid_info_list> {
-    return this.http.get<Droneid_info_list>('/api/get_droneid_info');
+    return this.http.get<Droneid_info_list>('/api/get_current_droneid_info');
   }
 
   getDroneidMovementInfo(): Observable<Droneid_movement_list> {

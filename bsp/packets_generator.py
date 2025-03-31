@@ -80,8 +80,8 @@ class packets_generator():
     def generate_drone_generation_infos(new_droneid_flights: list[DroneIDFlight], new_remoteid_flights: list[RemoteIDFlight]):
         
         for i in range(packets_generator.NUMBER_OF_DRONES):
-            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.droneid, new_droneid_flights[i].home_latitude, new_droneid_flights[i].home_longitude, new_droneid_flights[i].id, new_droneid_flights[i].drone_id))
-            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.remoteid, new_remoteid_flights[i].home_lat, new_remoteid_flights[i].home_lng, new_remoteid_flights[i].id, new_remoteid_flights[i].remote_id))
+            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.droneid, new_droneid_flights[i].home_latitude, new_droneid_flights[i].home_longitude, new_droneid_flights[i].id, new_droneid_flights[i].droneid_info_id))
+            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.remoteid, new_remoteid_flights[i].home_lat, new_remoteid_flights[i].home_lng, new_remoteid_flights[i].id, new_remoteid_flights[i].remoteid_info_id))
             
 
 
@@ -94,9 +94,7 @@ class packets_generator():
             new_home_latitude = packets_generator.BASE_LATITUDE + packets_generator.random_variance()
             new_home_longititude = packets_generator.BASE_LONGITUDE + packets_generator.random_variance()
             new_remoteid_flight = RemoteIDFlight(
-                remote_id = remoteid_info_ids[i],
-                pilot_lat = new_home_latitude,
-                pilot_lng = new_home_longititude,
+                remoteid_info_id = remoteid_info_ids[i],
                 home_lat = new_home_latitude,
                 home_lng = new_home_longititude
             )
@@ -107,9 +105,7 @@ class packets_generator():
             new_home_latitude = packets_generator.BASE_LATITUDE + packets_generator.random_variance()
             new_home_longititude = packets_generator.BASE_LONGITUDE + packets_generator.random_variance()
             new_droneid_flight = DroneIDFlight(
-                drone_id = droneid_info_ids[i],
-                rc_latitude = new_home_latitude,
-                rc_longitude = new_home_longititude,
+                droneid_info_id = droneid_info_ids[i],
                 home_longitude = new_home_latitude,
                 home_latitude = new_home_longititude
             )
@@ -188,8 +184,8 @@ class packets_generator():
         for drone_generation_info in packets_generator.drone_generation_infos:
             if drone_generation_info.packetType == PacketType.remoteid:
                 new_remoteid_movement = RemoteIDMovement(
-                    drone_id =  drone_generation_info.info_id,
-                    flight_id = drone_generation_info.flight_id,
+                    remoteid_info_id =  drone_generation_info.info_id,
+                    remoteid_flight_id = drone_generation_info.flight_id,
                     lat = drone_generation_info.x_position,
                     lng = drone_generation_info.y_position,
                     altitude = 50,
@@ -201,14 +197,16 @@ class packets_generator():
                     roll = 5,
                     yaw = 5,
                     spoofed = True,
-                    timestamp = datetime.datetime.now()
+                    timestamp = datetime.datetime.now(),
+                    pilot_lat = drone_generation_info.start_x_position,
+                    pilot_lng = drone_generation_info.start_y_position
                 )
                 db.session.add(new_remoteid_movement)
 
             else:
                 new_droneid_movement = DroneIDMovement(
-                    drone_id =  drone_generation_info.info_id,
-                    flight_id = drone_generation_info.flight_id,
+                    droneid_info_id =  drone_generation_info.info_id,
+                    droneid_flight_id = drone_generation_info.flight_id,
                     state_info = 1234,
                     latitude = drone_generation_info.x_position,
                     longitude = drone_generation_info.y_position,
@@ -218,7 +216,9 @@ class packets_generator():
                     v_east = 10,
                     v_up = 10,
                     yaw = 5,
-                    gps_time = datetime.datetime.now()
+                    gps_time = datetime.datetime.now(),
+                    rc_latitude = drone_generation_info.start_x_position,
+                    rc_longitude = drone_generation_info.start_y_position
                 )
 
                 db.session.add(new_droneid_movement)
