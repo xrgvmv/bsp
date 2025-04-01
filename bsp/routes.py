@@ -136,7 +136,7 @@ def get_all_remoteid_info():
 @main.route('/api/get_all_droneid_info', methods=['GET'])
 def get_all_droneid_info():
     try:
-        drone_id_infos = RemoteIDInfo.query.all()
+        drone_id_infos = DroneIDInfo.query.all()
         if drone_id_infos:
             return jsonify({"droneid_info_list": [di for di in drone_id_infos]}), 200
         else:
@@ -154,7 +154,7 @@ def get_droneid_movements_based_on_id_of_drone_and_flight():
         if flight_id is None or drone_id is None:
             return jsonify({"error": "Missing parameters"}), 400
 
-        droneid_movements = DroneIDMovement.query.filter_by(droneid_flight_id=flight_id, droneid_info_id=drone_id).all()
+        droneid_movements = DroneIDMovement.query.filter_by(droneid_flight_id=flight_id, droneid_info_id=drone_id).order_by(DroneIDMovement.gps_time).all()
         if droneid_movements:
             return jsonify({"droneid_movements": [dm for dm in droneid_movements]}), 200
         else:
@@ -171,7 +171,7 @@ def get_remoteid_movements_based_on_id_of_drone_and_flight():
         if flight_id is None or drone_id is None:
             return jsonify({"error": "Missing parameters"}), 400
 
-        remoteid_movements = RemoteIDMovement.query.filter_by(remoteid_flight_id=flight_id, remoteid_info_id=drone_id).all()
+        remoteid_movements = RemoteIDMovement.query.filter_by(remoteid_flight_id=flight_id, remoteid_info_id=drone_id).order_by(RemoteIDMovement.timestamp).all()
         if remoteid_movements:
             return jsonify({"remoteid_movements": [rm for rm in remoteid_movements]}), 200
         else:
