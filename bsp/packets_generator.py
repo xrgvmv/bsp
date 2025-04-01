@@ -40,7 +40,8 @@ class packets_generator():
     BASE_VARIANCE = 0.01 # in degress
     GENERATION_PERIOD = 1 # in seconds
     NUMBER_OF_DRONES = 4 # per protocol
-    MAX_SPEED_CHANGE = 0.01 # degrees per seconds
+    MAX_SPEED_CHANGE = 0.001 # degrees per seconds
+    SPEED_CHANGE_BIAS = 0.0001 # degrees per seconds
     SPEED_CHANGE_TIME = 2
 
     last_acceleration_update = None
@@ -106,8 +107,8 @@ class packets_generator():
             new_home_longititude = packets_generator.BASE_LONGITUDE + packets_generator.random_variance()
             new_droneid_flight = DroneIDFlight(
                 droneid_info_id = droneid_info_ids[i],
-                home_longitude = new_home_latitude,
-                home_latitude = new_home_longititude
+                home_latitude = new_home_latitude,
+                home_longitude = new_home_longititude
             )
             db.session.add(new_droneid_flight)
             new_droneid_flights.append(new_droneid_flight)
@@ -171,6 +172,10 @@ class packets_generator():
             for drone_generation_info in packets_generator.drone_generation_infos: 
                 drone_generation_info.x_velocity += random.uniform(-packets_generator.MAX_SPEED_CHANGE, packets_generator.MAX_SPEED_CHANGE)
                 drone_generation_info.y_velocity += random.uniform(-packets_generator.MAX_SPEED_CHANGE, packets_generator.MAX_SPEED_CHANGE)
+
+                drone_generation_info.x_velocity += -packets_generator.SPEED_CHANGE_BIAS if drone_generation_info.x_velocity > 0 else packets_generator.SPEED_CHANGE_BIAS
+                drone_generation_info.y_velocity += -packets_generator.SPEED_CHANGE_BIAS if drone_generation_info.y_velocity > 0 else packets_generator.SPEED_CHANGE_BIAS
+
 
         for drone_generation_info in packets_generator.drone_generation_infos: 
             drone_generation_info.x_position += drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD
