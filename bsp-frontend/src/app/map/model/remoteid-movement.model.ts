@@ -1,14 +1,19 @@
 export interface RemoteidMovement {
-  id: number;
-  drone_id: number;
-  status: number;
-  timestamp: number;
-  direction: number;
-  speed_horizontal: number;
-  speed_vertical: number;
-  latitude: number;
-  longitude: number;
-  altitude_baro: number;
-  altitude_geo: number;
+  altitude: number;
   height: number;
+  id: number;
+  lat: number;
+  lng: number;
+  pilot_lat: number;
+  pilot_lng: number;
+  pitch: number;
+  remoteid_flight_id: number;
+  remoteid_info_id: number;
+  roll: number;
+  spoofed: boolean;
+  timestamp: string;
+  x_speed: number;
+  y_speed: number;
+  yaw: number;
+  z_speed: number;
 }

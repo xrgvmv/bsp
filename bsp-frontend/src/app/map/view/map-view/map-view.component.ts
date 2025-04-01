@@ -1,20 +1,26 @@
-import {
-  Component,
-  OnInit,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { combineLatest } from 'rxjs';
 import * as L from 'leaflet';
-import { combineLatest, Observable } from 'rxjs';
 import { MapService } from '../../service/map.service';
-import { AboutViewComponent } from '../about-view/about-view/about-view.component';
-import { UavsListViewComponent } from '../uavs-list-view/uavs-list-view/uavs-list-view.component';
+import { AboutViewComponent } from '../about-view/about-view.component';
+import { UavsListViewComponent } from '../uavs-list-view/uavs-list-view.component';
 import { RemoteidMovement } from '../../model/remoteid-movement.model';
 import { DroneidMovement } from '../../model/droneid-movement.model';
 import { Remoteid } from '../../model/remoteid.model';
 import { Droneid } from '../../model/droneid.model';
+import { HistoricDataViewIconComponent } from '../historic-data-view-icon/historic-data-view-icon.component';
+import { ImportViewIconComponent } from '../import-view-icon/import-view-icon.component';
+import { FlightHistoryControlPanelComponent } from '../flight-history-control-panel/flight-history-control-panel.component';
 
 @Component({
   selector: 'app-map-view',
-  imports: [AboutViewComponent, UavsListViewComponent],
+  imports: [
+    AboutViewComponent,
+    UavsListViewComponent,
+    HistoricDataViewIconComponent,
+    ImportViewIconComponent,
+    FlightHistoryControlPanelComponent,
+  ],
   templateUrl: './map-view.component.html',
   styleUrl: './map-view.component.css',
 })
@@ -32,7 +38,7 @@ export class MapViewComponent implements OnInit {
     popupAnchor: [-0, -20],
   }) as L.Icon;
 
-  constructor(private service: MapService) {}
+  constructor(public service: MapService) {}
 
   ngOnInit(): void {
     this.initMap();
@@ -46,7 +52,7 @@ export class MapViewComponent implements OnInit {
 
     setInterval(() => {
       this.startFetchingMapView();
-    }, 500); // 0.5s
+    }, 1500); // 1.5s
   }
 
   private initMap(): void {
@@ -76,10 +82,10 @@ export class MapViewComponent implements OnInit {
         this.droneids_movement = droneidMovements.droneid_movement_list;
         this.remoteids_movement = remoteidMovements.remoteid_movement_list;
 
-        console.log('Droneid drones:', this.droneid_drones); // debug
-        console.log('Remoteid drones:', this.remoteid_drones); // debug
-        console.log('Droneids movement:', this.droneids_movement); // debug
-        console.log('Remoteids movement:', this.remoteids_movement); // debug
+        // console.log('Droneid drones:', this.droneid_drones); // debug
+        // console.log('Remoteid drones:', this.remoteid_drones); // debug
+        // console.log('Droneids movement:', this.droneids_movement); // debug
+        // console.log('Remoteids movement:', this.remoteids_movement); // debug
 
         this.updateMapMarkers();
       }
@@ -108,8 +114,19 @@ export class MapViewComponent implements OnInit {
     }
 
     this.clearMarkers(); // clear all markers
-    this.addMarkers(this.remoteid_drones, this.remoteids_movement, this.uavIcon, 'RemoteID'); // remoteid
-    this.addMarkers(this.droneid_drones, this.droneids_movement, this.uavIcon, 'DroneID'); // droneid
+
+    this.addMarkers(
+      this.remoteid_drones,
+      this.remoteids_movement,
+      this.uavIcon,
+      'RemoteID'
+    ); // remoteid
+    this.addMarkers(
+      this.droneid_drones,
+      this.droneids_movement,
+      this.uavIcon,
+      'DroneID'
+    ); // droneid
   }
 
   private clearMarkers(): void {
@@ -124,27 +141,28 @@ export class MapViewComponent implements OnInit {
     type: string
   ): void {
     drones.forEach((drone) => {
-      const movement = movements.find(
-        (m: any) => m.drone_id === drone.id || m.remote_id === drone.id
-      );
+      const movement =
+        type === 'RemoteID'
+          ? movements.find((m: any) => m.remoteid_info_id === drone.id)
+          : movements.find((m: any) => m.droneid_info_id === drone.id);
 
       if (movement) {
-        const marker = L.marker([movement.latitude, movement.longitude], {
-          icon,
-        }).addTo(this.map!);
+        const latitude = movement.lat || movement.latitude;
+        const longitude = movement.lng || movement.longitude;
 
-        marker.bindPopup(
-          `<b>Rodzaj protokołu:</b> ${type}<br><b>Numer seryjny:</b> ${
-            drone.serial_number || drone.serial_number
-          }<br><b>Latitude:</b> ${movement.latitude}<br><b>Longitude:</b> ${
-            movement.longitude
-          }`
-        );
-        this.markers.push(marker);
+        if (latitude && longitude) {
+          const marker = L.marker([latitude, longitude], {
+            icon,
+          }).addTo(this.map!);
 
+          marker.bindPopup(
+            `<b>Rodzaj protokołu:</b> ${type}<br><b>Numer seryjny:</b> ${drone.serial_number}<br><b>Latitude:</b> ${latitude}<br><b>Longitude:</b> ${longitude}`
+          );
+          this.markers.push(marker);
+        }
       } else {
         console.log(
-          `No movement data for drone ID: ${drone.id || drone.remote_id} Serial number: ${drone.serial_number}`
+          `No movement data for ${type} drone ID: ${drone.id}, Serial number: ${drone.serial_number}`
         );
       }
     });

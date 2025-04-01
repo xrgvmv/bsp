@@ -1,0 +1,108 @@
+<h2 mat-dialog-title>Archiwum BSP</h2>
+<button mat-icon-button class="close-button" (click)="dialogRef.close()">
+  <mat-icon>close</mat-icon>
+</button>
+<mat-dialog-content class="dialog-content">
+  <div class="dialog-layout">
+    <!-- uavs (drones) list -->
+    <div class="left-panel">
+      <div class="filter-section">
+        <mat-form-field appearance="outline">
+          <mat-label>Protokół</mat-label>
+          <mat-select [(ngModel)]="protocolFilter">
+            <mat-option value="all">Wszystkie</mat-option>
+            <mat-option value="droneid">DroneID</mat-option>
+            <mat-option value="remoteid">RemoteID</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Numer seryjny</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchTerm"
+            placeholder="Numer seryjny"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="drones-section">
+        <mat-list class="scrollable-list">
+          <mat-list-item
+            *ngFor="let drone of filteredDrones()"
+            (mousedown)="selectDrone(drone)"
+            [class.selected]="selectedDrone === drone"
+          >
+            <mat-icon matListItemIcon>keyboard_command</mat-icon>
+            <div matListItemTitle>
+              {{ drone.type }} BSP: {{ drone.serial_number }}
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </div>
+
+    <!-- list of flights for selected uav (drone) -->
+    <div class="right-panel" *ngIf="selectedDrone">
+      <div class="flights-section">
+        <h3>
+          Loty BSP: {{ selectedDrone.serial_number }} ({{
+            filteredFlights.length
+          }})
+        </h3>
+
+        <div class="filter-section">
+          <mat-form-field appearance="outline">
+            <mat-label>Data początkowa (DD/MM/YYYY)</mat-label>
+            <input
+              matInput
+              [matDatepicker]="startPicker"
+              [(ngModel)]="startDate"
+            />
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="startPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Data końcowa (DD/MM/YYYY)</mat-label>
+            <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" />
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="endPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <mat-list class="scrollable-list">
+          <mat-list-item
+            *ngFor="let flight of filteredFlights()"
+            (mousedown)="selectFlight(flight)"
+            [class.selected]="selectedFlight === flight"
+          >
+            <mat-icon matListItemIcon>route</mat-icon>
+            <div matListItemTitle>Lot ID: {{ flight.flight_id }}</div>
+            <div matListItemLine>
+              Od: {{ flight.start_time | date : "d/MM/y h:MM" }} do:
+              {{ flight.end_time | date : "d/MM/y h:MM" }}
+            </div>
+            <mat-divider></mat-divider>
+          </mat-list-item>
+        </mat-list>
+      </div>
+      <div class="button-section">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="confirmSelection()"
+          [disabled]="!selectedFlight"
+        >
+          Wybierz lot
+        </button>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

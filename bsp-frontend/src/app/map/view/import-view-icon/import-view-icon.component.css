@@ -1,0 +1,9 @@
+#import-icon {
+  position: absolute;
+  top: 130px;
+  right: 10px;
+  font-size: 48px;
+  color: #000;
+  cursor: pointer;
+  z-index: 1000;
+}

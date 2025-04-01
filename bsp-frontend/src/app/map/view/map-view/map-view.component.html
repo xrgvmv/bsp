@@ -1,4 +1,7 @@
 <app-about-view />
+<app-import-view-icon />
+<app-historic-data-view-icon [map]="map" [service]="service">
+</app-historic-data-view-icon>
 <div class="map-container">
   <div id="map"></div>
 </div>
@@ -9,3 +12,7 @@
   [droneids_movement]="droneids_movement"
   [map]="map"
 ></app-uavs-list-view>
+<app-flight-history-control-panel
+  [map]="map"
+  [mapService]="service"
+></app-flight-history-control-panel>

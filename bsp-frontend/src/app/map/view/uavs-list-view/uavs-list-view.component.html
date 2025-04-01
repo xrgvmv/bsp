@@ -1,0 +1,155 @@
+<div class="uavs-list-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Śledzone BSP:</mat-card-title>
+    </mat-card-header>
+
+    <mat-list>
+      <mat-list-item
+        *ngFor="let drone of combinedDroneData"
+        (click)="onDroneClick(drone)"
+        [class.selected]="selectedDrone === drone"
+      >
+        <mat-icon matListItemIcon>keyboard_command</mat-icon>
+        <div matListItemTitle>
+          {{ drone.type }} BSP: {{ drone.info.serial_number }}
+        </div>
+        <div matListItemLine *ngIf="drone.movement">
+          Lat.:
+          {{ (drone.movement.latitude || drone.movement.lat)?.toFixed(4) }},
+          Lng.:
+          {{ (drone.movement.longitude || drone.movement.lng)?.toFixed(4) }}
+        </div>
+        <div matListItemLine *ngIf="!drone.movement">
+          Brak danych o położeniu
+        </div>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    </mat-list>
+
+    <mat-card-footer>
+      <p>Ilość śledzonych BSP: {{ combinedDroneData.length }}</p>
+    </mat-card-footer>
+  </mat-card>
+</div>
+
+<!-- TODO: drone details to be fixed after changes made in api -->
+<div class="drone-details" *ngIf="selectedDrone">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Szczegóły BSP {{ selectedDrone.info.serial_number }}
+        <button
+          mat-icon-button
+          (click)="closeDroneDetails()"
+          class="close-button"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!--droneid-->
+      <mat-list *ngIf="selectedDrone.info.device_type">
+        <mat-list-item>
+          <div matListItemTitle>Podstawowe informacje</div>
+          <div matListItemLine>
+            Numer seryjny: {{ selectedDrone.info.serial_number }}
+          </div>
+          <div matListItemLine>Protokół: DroneID</div>
+          <div matListItemLine>
+            Typ urządzenia: {{ selectedDrone.info.device_type }}
+          </div>
+          <div matListItemLine>
+            Timestamp: {{ selectedDrone.movement.gps_time }}
+          </div>
+        </mat-list-item>
+        <mat-list-item>
+          <!-- <div matListItemTitle>Położenie</div>
+          <div matListItemLine>
+            Szerokość geo.: {{ selectedDrone.movement.latitude.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Długość geo.: {{ selectedDrone.movement.longitude.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Szer. geo. pocz.:
+            {{ selectedDrone.movement.latitude_home.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Dług. geo. pocz.:
+            {{ selectedDrone.movement.longitude_home.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Wysokość npm.: {{ selectedDrone.movement.altitude.toFixed(2) }} [m]
+          </div>
+          <div matListItemLine>
+            Wysokość względna:
+            {{ selectedDrone.movement.height.toFixed(2) }} [m]
+          </div>
+        </mat-list-item>
+        <mat-list-item>
+          <div matListItemTitle>Ruch</div>
+          <div matListItemLine>
+            Prędkość w kier. płn.:
+            {{ selectedDrone.movement.v_north.toFixed(2) }} [m/s]
+          </div>
+          <div matListItemLine>
+            Prędkość w kier. wsch.:
+            {{ selectedDrone.movement.v_east.toFixed(2) }} [m/s]
+          </div>
+          <div matListItemLine>
+            Prędkość pionowa: {{ selectedDrone.movement.v_up.toFixed(2) }} [m/s]
+          </div> -->
+        </mat-list-item>
+      </mat-list>
+      <!--remoteid-->
+      <mat-list *ngIf="!selectedDrone.info.device_type">
+        <mat-list-item>
+          <div matListItemTitle>Podstawowe informacje</div>
+          <div matListItemLine>
+            Numer seryjny: {{ selectedDrone.info.serial_number }}
+          </div>
+          <div matListItemLine>Protokół: RemoteID</div>
+          <!--to fix -->
+          <div matListItemLine>
+            Timestamp:<br />{{ selectedDrone.movement.timestamp }}
+          </div>
+        </mat-list-item>
+        <mat-list-item>
+          <div matListItemTitle>Położenie</div>
+          <div matListItemLine>
+            Szerokość geo.: {{ selectedDrone.movement.lat.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Długość geo.: {{ selectedDrone.movement.lng.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Wysokość npm.:
+            {{ selectedDrone.movement.altitude.toFixed(2) }} [m]
+          </div>
+          <!--to fix -->
+          <div matListItemLine>
+            Wysokość względna:
+            {{ selectedDrone.movement.height.toFixed(2) }} [m]
+          </div>
+        </mat-list-item>
+        <!-- <mat-list-item>
+          <div matListItemTitle>Ruch</div>
+          <div matListItemLine>
+            Kierunek: {{ selectedDrone.movement.direction.toFixed(2) }} [°]
+          </div>
+          <div matListItemLine>
+            Prędkość pozioma:
+            {{ selectedDrone.movement.speed_horizontal.toFixed(2) }} [m/s]
+          </div>
+          <div matListItemLine>
+            Prędkość pionowa:
+            {{ selectedDrone.movement.speed_vertical.toFixed(2) }} [m/s]
+          </div>
+        </mat-list-item> -->
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+</div>

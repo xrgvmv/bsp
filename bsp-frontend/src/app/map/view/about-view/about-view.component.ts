@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AboutDialogViewComponent } from '../../about-dialog-view/about-dialog-view/about-dialog-view.component';
+import { AboutDialogViewComponent } from '../about-dialog-view/about-dialog-view.component';
 
 @Component({
   selector: 'app-about-view',
@@ -11,13 +11,14 @@ import { AboutDialogViewComponent } from '../../about-dialog-view/about-dialog-v
 export class AboutViewComponent {
   constructor(public dialog: MatDialog) {}
 
+  // currently about view
   openDialog(): void {
     const dialogRef = this.dialog.open(AboutDialogViewComponent, {
       width: '300px',
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('Zamknieto okno dialogowe "o nas"');
-    });
+    // dialogRef.afterClosed().subscribe((result) => {
+    //   console.log('Zamknieto okno dialogowe "o nas"');
+    // });
   }
 }

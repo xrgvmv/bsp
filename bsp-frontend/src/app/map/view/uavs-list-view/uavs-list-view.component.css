@@ -34,7 +34,7 @@ mat-card-footer {
 
 .drone-details {
   position: absolute;
-  top: 80px;
+  top: 200px;
   right: 15px;
   z-index: 1000;
   width: 300px;
