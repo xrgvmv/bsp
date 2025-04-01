@@ -1,0 +1,84 @@
+<div class="flight-history-panel" *ngIf="visible">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Archiwalny lot BSP
+        <button mat-icon-button (click)="hidePanel()" class="close-button">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-title>
+      <mat-card-subtitle *ngIf="movementData.length">
+        Timestamp {{ currentIndex + 1 }} z {{ movementData.length }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="slider-container" *ngIf="movementData.length">
+        <mat-slider
+          min="0"
+          [max]="movementData.length - 1"
+          step="1"
+          class="flight-control-slider"
+        >
+          <input
+            matSliderThumb
+            [(ngModel)]="currentIndex"
+            (valueChange)="onSliderChange($event)"
+          />
+        </mat-slider>
+      </div>
+
+      <div class="controls">
+        <button
+          mat-icon-button
+          (click)="previousTimestamp()"
+          [disabled]="currentIndex === 0"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          (click)="nextTimestamp()"
+          [disabled]="currentIndex === movementData.length - 1"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </mat-card-content>
+    <mat-card-content>
+      <div class="flight-info">
+        <mat-list>
+          <mat-list-item>
+            <div matListItemTitle>Podstawowe informacje</div>
+            <!-- TODO: data and more info -->
+            <div
+              matListItemLine
+              *ngIf="movementData.length && currentIndex < movementData.length"
+            >
+              Latitude:
+              {{
+                (
+                  movementData[currentIndex]?.latitude ||
+                  movementData[currentIndex]?.lat
+                )?.toFixed(6)
+              }}
+            </div>
+            <div
+              matListItemLine
+              *ngIf="movementData.length && currentIndex < movementData.length"
+            >
+              Longitude:
+              {{
+                (
+                  movementData[currentIndex]?.longitude ||
+                  movementData[currentIndex]?.lng
+                )?.toFixed(6)
+              }}
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

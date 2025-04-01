@@ -16,7 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { NgFor, NgIf } from '@angular/common';
 import * as L from 'leaflet';
-import { MatTab, MatTabGroup } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-uavs-list-view',
@@ -30,7 +29,7 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
   ],
   templateUrl: './uavs-list-view.component.html',
   styleUrls: ['./uavs-list-view.component.css'],
-  standalone: true
+  standalone: true,
 })
 export class UavsListViewComponent implements OnChanges {
   @Input() remoteid_drones: Remoteid[] = [];
@@ -47,7 +46,7 @@ export class UavsListViewComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     this.mergeDroneData();
-    console.log(this.combinedDroneData)
+    // console.log(this.combinedDroneData); // debug
 
     if (this.selectedDrone) {
       const updatedDrone = this.combinedDroneData.find(
@@ -58,6 +57,7 @@ export class UavsListViewComponent implements OnChanges {
 
       if (updatedDrone) {
         this.selectedDrone = updatedDrone;
+        // console.log('Updated drone:', updatedDrone); // debug
       }
     }
   }
@@ -71,18 +71,17 @@ export class UavsListViewComponent implements OnChanges {
         return {
           type: 'RemoteID',
           info: drone,
-          movement: movement || null,
+          movement: movement,
         };
-
       }),
       ...this.droneid_drones.map((drone) => {
         const movement = this.droneids_movement.find(
-          (m) => m.droneid_flight_id === drone.id
+          (m) => m.droneid_info_id === drone.id
         );
         return {
           type: 'DroneID',
           info: drone,
-          movement: movement || null,
+          movement: movement,
         };
       }),
     ];
@@ -96,8 +95,10 @@ export class UavsListViewComponent implements OnChanges {
     this.selectedDrone = drone;
     this.droneSelected.emit(drone);
 
-    if (this.map) {
-      this.map.panTo([drone.movement.latitude, drone.movement.longitude]);
+    if (this.map && drone.movement) {
+      const latitude = drone.movement.lat || drone.movement.latitude;
+      const longitude = drone.movement.lng || drone.movement.longitude;
+      this.map.panTo([latitude, longitude]);
     }
   }
 }

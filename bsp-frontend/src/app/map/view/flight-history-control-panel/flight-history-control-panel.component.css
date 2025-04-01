@@ -1,0 +1,22 @@
+.flight-history-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 350px;
+}
+
+.close-button {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+.flight-control-slider {
+  width: 100%;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+}
