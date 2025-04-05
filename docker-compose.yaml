@@ -14,6 +14,7 @@ services:
       - db  
     networks:
       - bsp_network
+    restart: on-failure
 
   frontend:
     # image: bsp_frontend-test:latest
