@@ -3,9 +3,9 @@ import random
 import threading
 import time
 from enum import Enum
-
 from bsp.models.remoteid_movement import RemoteIDMovement
 from .database import db
+from .cooridinate_converter import shifted_coords
 from bsp.models.droneid_info import DroneIDInfo
 from bsp.models.droneid_movement import DroneIDMovement
 from bsp.models.droneid_flight import DroneIDFlight
@@ -18,7 +18,7 @@ class PacketType(Enum):
     droneid = 2
 
 class drone_generation_info(): 
-    def __init__(self, packetType: PacketType, start_x_position, start_y_position, flight_id, info_id):
+    def __init__(self, packetType: PacketType, start_x_position, start_y_position, max_height, max_vertical_speed, flight_id, info_id):
         self.packetType = packetType
         self.info_id = info_id #id of droneid_info or remoteid_info
         self.flight_id = flight_id
@@ -29,6 +29,9 @@ class drone_generation_info():
         self.x_velocity = 0
         self.y_velocity = 0
 
+        self.max_height = max_height
+        self.vertical_speed = max_vertical_speed
+        self.height = 0
 
 
 class packets_generator():
@@ -37,14 +40,19 @@ class packets_generator():
 
     BASE_LATITUDE = 54.352025 # in degress
     BASE_LONGITUDE = 18.646638 # in degress
-    BASE_VARIANCE = 0.002 # in degress
-    GENERATION_PERIOD = 1 # in seconds
-    NUMBER_OF_DRONES = 4 # per protocol
-    MAX_SPEED_CHANGE = 0.0003 # degrees per seconds
-    SPEED_CHANGE_BIAS = 0.00005 # degrees per seconds
-    MAX_SPEED = 0.005 # degrees per seconds
-    SPEED_CHANGE_TIME = 2
+    BASE_START_VARIANCE = 2000 # in m
 
+    BASE_MAX_HEIGHT = 30 # in m
+    BASE_MAX_HEIGHT_VARICANE = 10 # in m
+    BASE_VERTICAL_SPEED = 3 # in m
+    BASE_VERTICAL_SPEED_VARICANE = 1 # in m
+    
+    GENERATION_PERIOD = 1 # in seconds
+    SPEED_CHANGE_BIAS = 0.2 # m per seconds
+    MAX_SPEED = 20 # m per seconds
+    SPEED_CHANGE_TIME = 2 # in seconds
+    NUMBER_OF_DRONES = 4 # per protocol
+    MAX_SPEED_CHANGE = 3 # m per seconds
     last_acceleration_update = None
     
 
@@ -82,8 +90,13 @@ class packets_generator():
     def generate_drone_generation_infos(new_droneid_flights: list[DroneIDFlight], new_remoteid_flights: list[RemoteIDFlight]):
         
         for i in range(packets_generator.NUMBER_OF_DRONES):
-            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.droneid, new_droneid_flights[i].home_latitude, new_droneid_flights[i].home_longitude, new_droneid_flights[i].id, new_droneid_flights[i].droneid_info_id))
-            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.remoteid, new_remoteid_flights[i].home_lat, new_remoteid_flights[i].home_lng, new_remoteid_flights[i].id, new_remoteid_flights[i].remoteid_info_id))
+            max_drone_height = packets_generator.BASE_MAX_HEIGHT + random.uniform(-packets_generator.BASE_MAX_HEIGHT_VARICANE, packets_generator.BASE_MAX_HEIGHT_VARICANE)
+            drone_vertical_speed = packets_generator.BASE_VERTICAL_SPEED + random.uniform(-packets_generator.BASE_VERTICAL_SPEED_VARICANE, packets_generator.BASE_VERTICAL_SPEED_VARICANE)
+            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.droneid, new_droneid_flights[i].home_latitude, new_droneid_flights[i].home_longitude, max_drone_height, drone_vertical_speed, new_droneid_flights[i].id, new_droneid_flights[i].droneid_info_id))
+            
+            max_drone_height = packets_generator.BASE_MAX_HEIGHT + random.uniform(-packets_generator.BASE_MAX_HEIGHT_VARICANE, packets_generator.BASE_MAX_HEIGHT_VARICANE)
+            drone_vertical_speed = packets_generator.BASE_VERTICAL_SPEED + random.uniform(-packets_generator.BASE_VERTICAL_SPEED_VARICANE, packets_generator.BASE_VERTICAL_SPEED_VARICANE)
+            packets_generator.drone_generation_infos.append(drone_generation_info(PacketType.remoteid, new_remoteid_flights[i].home_lat, new_remoteid_flights[i].home_lng, max_drone_height, drone_vertical_speed, new_remoteid_flights[i].id, new_remoteid_flights[i].remoteid_info_id))
             
 
 
@@ -93,8 +106,7 @@ class packets_generator():
         new_remoteid_flights = []
 
         for i in range(packets_generator.NUMBER_OF_DRONES):
-            new_home_latitude = packets_generator.BASE_LATITUDE + packets_generator.random_variance()
-            new_home_longititude = packets_generator.BASE_LONGITUDE + packets_generator.random_variance()
+            new_home_latitude, new_home_longititude = shifted_coords(packets_generator.BASE_LATITUDE, packets_generator.BASE_LONGITUDE, packets_generator.random_distance(), packets_generator.random_distance())
             new_remoteid_flight = RemoteIDFlight(
                 remoteid_info_id = remoteid_info_ids[i],
                 home_lat = new_home_latitude,
@@ -104,8 +116,7 @@ class packets_generator():
             new_remoteid_flights.append(new_remoteid_flight)
 
 
-            new_home_latitude = packets_generator.BASE_LATITUDE + packets_generator.random_variance()
-            new_home_longititude = packets_generator.BASE_LONGITUDE + packets_generator.random_variance()
+            new_home_latitude, new_home_longititude = shifted_coords(packets_generator.BASE_LATITUDE, packets_generator.BASE_LONGITUDE, packets_generator.random_distance(), packets_generator.random_distance())
             new_droneid_flight = DroneIDFlight(
                 droneid_info_id = droneid_info_ids[i],
                 home_latitude = new_home_latitude,
@@ -163,8 +174,8 @@ class packets_generator():
         return [[droneid_info.id for droneid_info in flying_droneid_info], [remoteid_info.id for remoteid_info in flying_remoteid_info]]
 
 
-    def random_variance():
-        return random.uniform(-packets_generator.BASE_VARIANCE, packets_generator.BASE_VARIANCE)
+    def random_distance():
+        return random.uniform(-packets_generator.BASE_START_VARIANCE, packets_generator.BASE_START_VARIANCE)
 
 
     def update_drone_generation_info():
@@ -188,9 +199,12 @@ class packets_generator():
                     drone_generation_info.y_velocity = -packets_generator.MAX_SPEED
 
         for drone_generation_info in packets_generator.drone_generation_infos: 
-            drone_generation_info.x_position += drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD
-            drone_generation_info.y_position += drone_generation_info.y_velocity * packets_generator.GENERATION_PERIOD
+            drone_generation_info.x_position, drone_generation_info.y_position = shifted_coords(drone_generation_info.x_position, drone_generation_info.y_position, drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD, drone_generation_info.y_velocity * packets_generator.GENERATION_PERIOD)
 
+            if drone_generation_info.height + drone_generation_info.vertical_speed * packets_generator.GENERATION_PERIOD < drone_generation_info.max_height:
+                 drone_generation_info.height += drone_generation_info.vertical_speed 
+            else:
+                 drone_generation_info.vertical_speed = 0
 
     def generate_random_data_for_multiple_drones():
 
@@ -203,11 +217,11 @@ class packets_generator():
                     remoteid_flight_id = drone_generation_info.flight_id,
                     lat = drone_generation_info.x_position,
                     lng = drone_generation_info.y_position,
-                    altitude = 50,
-                    height = 20,
-                    x_speed = 10,
-                    y_speed = 10,
-                    z_speed = 10,
+                    altitude = drone_generation_info.height + 10,
+                    height = drone_generation_info.height,
+                    x_speed = drone_generation_info.x_velocity,
+                    y_speed = drone_generation_info.y_velocity,
+                    z_speed = drone_generation_info.vertical_speed,
                     pitch = 5,
                     roll = 5,
                     yaw = 5,
@@ -225,11 +239,11 @@ class packets_generator():
                     state_info = 1234,
                     latitude = drone_generation_info.x_position,
                     longitude = drone_generation_info.y_position,
-                    altitude = 50,
-                    height = 20,
-                    v_north = 10,
-                    v_east = 10,
-                    v_up = 10,
+                    altitude = drone_generation_info.height + 10,
+                    height = drone_generation_info.height,
+                    v_north = drone_generation_info.y_velocity,
+                    v_east = drone_generation_info.x_velocity,
+                    v_up = drone_generation_info.vertical_speed,
                     yaw = 5,
                     gps_time = datetime.datetime.now(),
                     rc_latitude = drone_generation_info.start_x_position,
