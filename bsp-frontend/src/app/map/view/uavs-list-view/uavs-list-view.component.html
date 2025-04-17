@@ -33,7 +33,6 @@
   </mat-card>
 </div>
 
-<!-- TODO: drone details to be fixed after changes made in api -->
 <div class="drone-details" *ngIf="selectedDrone">
   <mat-card>
     <mat-card-header>
@@ -49,7 +48,7 @@
       </mat-card-title>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content *ngIf="selectedDrone.movement">
       <!--droneid-->
       <mat-list *ngIf="selectedDrone.info.device_type">
         <mat-list-item>
@@ -66,44 +65,49 @@
           </div>
         </mat-list-item>
         <mat-list-item>
-          <!-- <div matListItemTitle>Położenie</div>
+          <div matListItemTitle>Położenie</div>
           <div matListItemLine>
-            Szerokość geo.: {{ selectedDrone.movement.latitude.toFixed(8) }} [°]
+            Szerokość geo.: {{ selectedDrone.movement.latitude?.toFixed(8) }} [°]
           </div>
           <div matListItemLine>
-            Długość geo.: {{ selectedDrone.movement.longitude.toFixed(8) }} [°]
+            Długość geo.: {{ selectedDrone.movement.longitude?.toFixed(8) }} [°]
           </div>
           <div matListItemLine>
-            Szer. geo. pocz.:
-            {{ selectedDrone.movement.latitude_home.toFixed(8) }} [°]
-          </div>
-          <div matListItemLine>
-            Dług. geo. pocz.:
-            {{ selectedDrone.movement.longitude_home.toFixed(8) }} [°]
-          </div>
-          <div matListItemLine>
-            Wysokość npm.: {{ selectedDrone.movement.altitude.toFixed(2) }} [m]
+            Wysokość npm.: {{ selectedDrone.movement.altitude?.toFixed(2) }} [m]
           </div>
           <div matListItemLine>
             Wysokość względna:
-            {{ selectedDrone.movement.height.toFixed(2) }} [m]
+            {{ selectedDrone.movement.height?.toFixed(2) }} [m]
+          </div>
+          <div matListItemLine>
+            Szerokość geo. pilota: {{ selectedDrone.movement.rc_latitude?.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Długość geo. pilota: {{ selectedDrone.movement.rc_longitude?.toFixed(8) }} [°]
           </div>
         </mat-list-item>
         <mat-list-item>
-          <div matListItemTitle>Ruch</div>
+          <div matListItemTitle>Ruch i Orientacja</div>
           <div matListItemLine>
             Prędkość w kier. płn.:
-            {{ selectedDrone.movement.v_north.toFixed(2) }} [m/s]
+            {{ selectedDrone.movement.v_north?.toFixed(2) }} [m/s]
           </div>
           <div matListItemLine>
             Prędkość w kier. wsch.:
-            {{ selectedDrone.movement.v_east.toFixed(2) }} [m/s]
+            {{ selectedDrone.movement.v_east?.toFixed(2) }} [m/s]
           </div>
           <div matListItemLine>
-            Prędkość pionowa: {{ selectedDrone.movement.v_up.toFixed(2) }} [m/s]
-          </div> -->
+            Prędkość pionowa: {{ selectedDrone.movement.v_up?.toFixed(2) }} [m/s]
+          </div>
+          <div matListItemLine>
+            Odchylenie (Yaw): {{ selectedDrone.movement.yaw?.toFixed(2) }} [°]
+          </div>
+          <div matListItemLine>
+            Informacje o stanie: {{ selectedDrone.movement.state_info }}
+          </div>
         </mat-list-item>
       </mat-list>
+
       <!--remoteid-->
       <mat-list *ngIf="!selectedDrone.info.device_type">
         <mat-list-item>
@@ -112,7 +116,6 @@
             Numer seryjny: {{ selectedDrone.info.serial_number }}
           </div>
           <div matListItemLine>Protokół: RemoteID</div>
-          <!--to fix -->
           <div matListItemLine>
             Timestamp:<br />{{ selectedDrone.movement.timestamp }}
           </div>
@@ -120,36 +123,60 @@
         <mat-list-item>
           <div matListItemTitle>Położenie</div>
           <div matListItemLine>
-            Szerokość geo.: {{ selectedDrone.movement.lat.toFixed(8) }} [°]
+            Szerokość geo.: {{ selectedDrone.movement.lat?.toFixed(8) }} [°]
           </div>
           <div matListItemLine>
-            Długość geo.: {{ selectedDrone.movement.lng.toFixed(8) }} [°]
+            Długość geo.: {{ selectedDrone.movement.lng?.toFixed(8) }} [°]
           </div>
           <div matListItemLine>
             Wysokość npm.:
-            {{ selectedDrone.movement.altitude.toFixed(2) }} [m]
+            {{ selectedDrone.movement.altitude?.toFixed(2) }} [m]
           </div>
-          <!--to fix -->
           <div matListItemLine>
             Wysokość względna:
-            {{ selectedDrone.movement.height.toFixed(2) }} [m]
+            {{ selectedDrone.movement.height?.toFixed(2) }} [m]
+          </div>
+          <div matListItemLine>
+            Szerokość geo. pilota: {{ selectedDrone.movement.pilot_lat?.toFixed(8) }} [°]
+          </div>
+          <div matListItemLine>
+            Długość geo. pilota: {{ selectedDrone.movement.pilot_lng?.toFixed(8) }} [°]
           </div>
         </mat-list-item>
-        <!-- <mat-list-item>
-          <div matListItemTitle>Ruch</div>
+        <mat-list-item>
+          <div matListItemTitle>Ruch i Orientacja</div>
           <div matListItemLine>
-            Kierunek: {{ selectedDrone.movement.direction.toFixed(2) }} [°]
+            Prędkość X:
+            {{ selectedDrone.movement.x_speed?.toFixed(2) }} [m/s]
           </div>
           <div matListItemLine>
-            Prędkość pozioma:
-            {{ selectedDrone.movement.speed_horizontal.toFixed(2) }} [m/s]
+            Prędkość Y:
+            {{ selectedDrone.movement.y_speed?.toFixed(2) }} [m/s]
           </div>
           <div matListItemLine>
-            Prędkość pionowa:
-            {{ selectedDrone.movement.speed_vertical.toFixed(2) }} [m/s]
+            Prędkość Z (pionowa):
+            {{ selectedDrone.movement.z_speed?.toFixed(2) }} [m/s]
           </div>
-        </mat-list-item> -->
+          <div matListItemLine>
+            Odchylenie (Yaw): {{ selectedDrone.movement.yaw?.toFixed(2) }} [°]
+          </div>
+          <div matListItemLine>
+            Pochylenie (Pitch): {{ selectedDrone.movement.pitch?.toFixed(2) }} [°]
+          </div>
+          <div matListItemLine>
+            Przechylenie (Roll): {{ selectedDrone.movement.roll?.toFixed(2) }} [°]
+          </div>
+        </mat-list-item>
+        <mat-list-item>
+          <div matListItemTitle>Status</div>
+          <div matListItemLine>
+            Czy może być fałszowany: {{ selectedDrone.movement.spoofed ? 'Tak' : 'Nie' }}
+          </div>
+        </mat-list-item>
       </mat-list>
+    </mat-card-content>
+    <mat-card-content *ngIf="!selectedDrone.movement">
+      <p>Brak danych o ruchu dla wybranego BSP.</p>
     </mat-card-content>
   </mat-card>
 </div>
