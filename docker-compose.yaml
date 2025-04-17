@@ -16,17 +16,17 @@ services:
       - bsp_network
     restart: on-failure
 
-  # frontend:
-  #   # image: bsp_frontend-test:latest
-  #   build: ./bsp-frontend
-  #   ports:
-  #     - "4200:4200"
-  #   environment:
-  #     - NODE_ENV=development
-  #   depends_on:
-  #     - web
-  #   networks:
-  #     - bsp_network
+  frontend:
+    # image: bsp_frontend-test:latest
+    build: ./bsp-frontend
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - web
+    networks:
+      - bsp_network
 
   db:
     image: postgres:latest

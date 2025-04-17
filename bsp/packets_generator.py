@@ -2,6 +2,7 @@ import datetime
 import random
 import threading
 import time
+import math
 from enum import Enum
 from bsp.models.remoteid_movement import RemoteIDMovement
 from .database import db
@@ -47,6 +48,13 @@ class packets_generator():
     BASE_VERTICAL_SPEED = 3 # in m
     BASE_VERTICAL_SPEED_VARICANE = 1 # in m
     
+    BASE_VARIANCE_YAW = 2 # degrees
+    BASE_VARIANCE_ROLL = 2 # degrees
+    BASE_VARIANCE_PITCH = 2 # degrees
+    MAX_PITCH = 20 # degrees
+    PITCH_DEGREES_PER_M_S = 0.5 # degrees per m/s
+
+
     GENERATION_PERIOD = 1 # in seconds
     SPEED_CHANGE_BIAS = 0.2 # m per seconds
     MAX_SPEED = 20 # m per seconds
@@ -147,6 +155,16 @@ class packets_generator():
 
         return [droneid_info_ids, remoteid_info_ids]
 
+    def generate_serial_number(lenght):
+        serial_number = [''] * lenght
+        for i in range(lenght):
+            rand_int = random.randint(0, 35)
+            if rand_int > 9:
+                serial_number[i] = chr(rand_int + 65 - 11)
+            else: 
+                serial_number[i] = chr(rand_int + 48)
+        return ''.join(serial_number)
+   
     def generate_initial_drone_info():
         
         flying_droneid_info = []
@@ -154,17 +172,17 @@ class packets_generator():
 
         for drone_id in range(packets_generator.NUMBER_OF_DRONES):
             new_remoteid_info = RemoteIDInfo(
-                serial_number=f"SN{random.randint(1, 1001)}",
-                oui=f"OUI{random.randint(1, 1001)}",
-                uuid=f"UUID{random.randint(1, 1001)}",
+                serial_number=packets_generator.generate_serial_number(16),
+                oui=packets_generator.generate_serial_number(18),
+                uuid=packets_generator.generate_serial_number(18),
             )
             db.session.add(new_remoteid_info)
             flying_remoteid_info.append(new_remoteid_info)
 
             new_droneid_info = DroneIDInfo(
-                serial_number=f"SN{random.randint(1, 101)}",
-                device_type = 1234,
-                uuid=f"UUID{random.randint(1, 1001)}",
+                serial_number=packets_generator.generate_serial_number(16),
+                device_type = 19603,
+                uuid=packets_generator.generate_serial_number(18),
             )
             db.session.add(new_droneid_info)
             flying_droneid_info.append(new_remoteid_info)
@@ -206,6 +224,14 @@ class packets_generator():
             else:
                  drone_generation_info.vertical_speed = 0
 
+
+    def calculate_pitch(drone_generation_info: drone_generation_info):
+        pitch = math.sqrt(drone_generation_info.x_velocity**2 + drone_generation_info.y_velocity**2) * packets_generator.PITCH_DEGREES_PER_M_S
+        if pitch > packets_generator.MAX_PITCH:
+            return packets_generator.MAX_PITCH + random.uniform(-packets_generator.BASE_VARIANCE_PITCH, packets_generator.BASE_VARIANCE_PITCH) 
+        else:
+            return pitch
+        
     def generate_random_data_for_multiple_drones():
 
         packets_generator.update_drone_generation_info()
@@ -222,9 +248,9 @@ class packets_generator():
                     x_speed = drone_generation_info.x_velocity,
                     y_speed = drone_generation_info.y_velocity,
                     z_speed = drone_generation_info.vertical_speed,
-                    pitch = 5,
-                    roll = 5,
-                    yaw = 5,
+                    pitch = packets_generator.calculate_pitch(drone_generation_info),
+                    roll = random.uniform(-packets_generator.BASE_VARIANCE_ROLL, packets_generator.BASE_VARIANCE_ROLL),
+                    yaw = random.uniform(-packets_generator.BASE_VARIANCE_YAW, packets_generator.BASE_VARIANCE_YAW),
                     spoofed = True,
                     timestamp = datetime.datetime.now(),
                     pilot_lat = drone_generation_info.start_x_position,
@@ -236,7 +262,7 @@ class packets_generator():
                 new_droneid_movement = DroneIDMovement(
                     droneid_info_id =  drone_generation_info.info_id,
                     droneid_flight_id = drone_generation_info.flight_id,
-                    state_info = 1234,
+                    state_info = 5023,
                     latitude = drone_generation_info.x_position,
                     longitude = drone_generation_info.y_position,
                     altitude = drone_generation_info.height + 10,
@@ -244,7 +270,7 @@ class packets_generator():
                     v_north = drone_generation_info.y_velocity,
                     v_east = drone_generation_info.x_velocity,
                     v_up = drone_generation_info.vertical_speed,
-                    yaw = 5,
+                    yaw = random.uniform(-packets_generator.BASE_VARIANCE_YAW, packets_generator.BASE_VARIANCE_YAW),
                     gps_time = datetime.datetime.now(),
                     rc_latitude = drone_generation_info.start_x_position,
                     rc_longitude = drone_generation_info.start_y_position
