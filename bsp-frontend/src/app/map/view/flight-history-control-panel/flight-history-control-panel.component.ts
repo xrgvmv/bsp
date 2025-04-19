@@ -130,9 +130,9 @@ export class FlightHistoryControlPanelComponent implements OnInit, OnDestroy {
     ]);
 
     this.flightPath = L.polyline(coordinates, {
-      color: 'green',
-      weight: 2,
-      opacity: 0.5,
+      color: 'black',
+      weight: 5,
+      opacity: 1.0,
     }).addTo(this.map);
 
     this.showTimestampAtIndex(0);

@@ -22,6 +22,8 @@
     "@angular/router": "^19.0.0",
     "bsp-frontend": "file:",
     "leaflet": "^1.9.4",
+    "material-icons": "^1.13.14",
+    "ng-connection-service": "^13.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

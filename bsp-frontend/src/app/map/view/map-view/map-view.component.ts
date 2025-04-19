@@ -58,16 +58,31 @@ export class MapViewComponent implements OnInit {
   private initMap(): void {
     this.map = L.map('map', {
       center: [54.371684, 18.612406], // pg weti
-      zoom: 20,
+      zoom: 10,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
+      if (!this.map) return;
+
+    L.tileLayer('bsp_map/{z}/{x}/{y}.png', { // 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+      maxZoom: 11,
       minZoom: 3,
       attribution:
         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(this.map);
+
+      /*L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { // 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        maxZoom: 19,
+        minZoom: 2,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(this.map);
+
+       */
   }
+
+
+
+
 
   private startFetchingMapView(): void {
     combineLatest([
