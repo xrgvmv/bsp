@@ -260,3 +260,104 @@ def get_remoteid_flights_based_on_id_of_drone():
             return jsonify({"message": "No data"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@main.route('/api/get_droneid_movements', methods=['GET'])
+def get_droneid_movements():
+    try:
+        drone_id = request.args.get('drone_id', type=int)
+        limit = request.args.get('limit', default=100, type=int)
+
+        if not drone_id:
+            return jsonify({"error": "Missing drone_id"}), 400
+
+        flight = (
+            DroneIDFlight.query
+            .filter_by(droneid_info_id=drone_id)
+            .order_by(desc(DroneIDFlight.id))
+            .first()
+        )
+
+        if not flight:
+            return jsonify({"error": "No flight found for this drone_id"}), 404
+
+        movements = (
+            DroneIDMovement.query
+            .filter_by(droneid_info_id=drone_id, droneid_flight_id=flight.id)
+            .order_by(desc(DroneIDMovement.gps_time))
+            .limit(limit)
+            .all()
+        )
+
+        result = [{
+            "id": m.id,
+            "drone_id": m.droneid_info_id,
+            "flight_id": m.droneid_flight_id,
+            "lat": m.latitude,
+            "lng": m.longitude,
+            "altitude": m.altitude,
+            "height": m.height,
+            "v_north": m.v_north,
+            "v_east": m.v_east,
+            "v_up": m.v_up,
+            "yaw": m.yaw,
+            "gps_time": m.gps_time.isoformat(),
+            "rc_latitude": m.rc_latitude,
+            "rc_longitude": m.rc_longitude
+        } for m in movements]
+
+        return jsonify({"droneid_movements": result}), 200 if result else (jsonify({"message": "No data"}), 404)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@main.route('/api/get_remoteid_movements', methods=['GET'])
+def get_remoteid_movements():
+    try:
+        drone_id = request.args.get('drone_id', type=int)
+        limit = request.args.get('limit', default=100, type=int)
+
+        if not drone_id:
+            return jsonify({"error": "Missing drone_id"}), 400
+
+        flight = (
+            RemoteIDFlight.query
+            .filter_by(remoteid_info_id=drone_id)
+            .order_by(desc(RemoteIDFlight.id))
+            .first()
+        )
+
+        if not flight:
+            return jsonify({"error": "No flight found for this drone_id"}), 404
+
+        movements = (
+            RemoteIDMovement.query
+            .filter_by(remoteid_info_id=drone_id, remoteid_flight_id=flight.id)
+            .order_by(desc(RemoteIDMovement.timestamp))
+            .limit(limit)
+            .all()
+        )
+
+        result = [{
+            "id": m.id,
+            "drone_id": m.remoteid_info_id,
+            "flight_id": m.remoteid_flight_id,
+            "lat": m.lat,
+            "lng": m.lng,
+            "altitude": m.altitude,
+            "height": m.height,
+            "x_speed": m.x_speed,
+            "y_speed": m.y_speed,
+            "z_speed": m.z_speed,
+            "pitch": m.pitch,
+            "roll": m.roll,
+            "yaw": m.yaw,
+            "spoofed": m.spoofed,
+            "timestamp": m.timestamp.isoformat(),
+            "pilot_lat": m.pilot_lat,
+            "pilot_lng": m.pilot_lng
+        } for m in movements]
+
+        return jsonify({"remoteid_movements": result}), 200 if result else (jsonify({"message": "No data"}), 404)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
