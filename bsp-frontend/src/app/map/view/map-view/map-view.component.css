@@ -7,3 +7,9 @@
   height: 100%;
   width: 100%;
 }
+
+.custom-svg-icon {
+  display: block;
+  width: 50%;
+  height: 50%;
+}
