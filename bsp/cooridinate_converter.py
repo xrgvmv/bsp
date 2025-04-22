@@ -9,7 +9,7 @@ def shifted_coords(latitude, longitude, x_change_meters, y_change_meters):
     if distance == 0:
         return latitude, longitude
 
-    angle_rad = math.atan2(x_change_meters, y_change_meters)
+    angle_rad = math.atan2(x_change_meters,y_change_meters)
     bearing_degrees = (math.degrees(angle_rad) + 360) % 360
 
     start_point = Point(latitude=latitude, longitude=longitude)

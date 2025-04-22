@@ -55,7 +55,7 @@ class packets_generator():
     PITCH_DEGREES_PER_M_S = 0.5 # degrees per m/s
 
 
-    GENERATION_PERIOD = 1 # in seconds
+    GENERATION_PERIOD = 2 # in seconds
     SPEED_CHANGE_BIAS = 0.2 # m per seconds
     MAX_SPEED = 20 # m per seconds
     SPEED_CHANGE_TIME = 2 # in seconds
@@ -160,7 +160,7 @@ class packets_generator():
         for i in range(lenght):
             rand_int = random.randint(0, 35)
             if rand_int > 9:
-                serial_number[i] = chr(rand_int + 65 - 11)
+                serial_number[i] = chr(rand_int + 65 - 10)
             else: 
                 serial_number[i] = chr(rand_int + 48)
         return ''.join(serial_number)
@@ -205,7 +205,8 @@ class packets_generator():
 
                 drone_generation_info.x_velocity += -packets_generator.SPEED_CHANGE_BIAS if drone_generation_info.x_position > drone_generation_info.start_x_position else packets_generator.SPEED_CHANGE_BIAS
                 drone_generation_info.y_velocity += -packets_generator.SPEED_CHANGE_BIAS if drone_generation_info.y_position > drone_generation_info.start_y_position else packets_generator.SPEED_CHANGE_BIAS
-                
+ 
+
                 if drone_generation_info.x_velocity > packets_generator.MAX_SPEED:
                     drone_generation_info.x_velocity = packets_generator.MAX_SPEED
                 elif drone_generation_info.x_velocity < -packets_generator.MAX_SPEED:
@@ -217,10 +218,10 @@ class packets_generator():
                     drone_generation_info.y_velocity = -packets_generator.MAX_SPEED
 
         for drone_generation_info in packets_generator.drone_generation_infos: 
-            drone_generation_info.x_position, drone_generation_info.y_position = shifted_coords(drone_generation_info.x_position, drone_generation_info.y_position, drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD, drone_generation_info.y_velocity * packets_generator.GENERATION_PERIOD)
+            drone_generation_info.x_position, drone_generation_info.y_position = shifted_coords(drone_generation_info.x_position, drone_generation_info.y_position, drone_generation_info.y_velocity * packets_generator.GENERATION_PERIOD, drone_generation_info.x_velocity * packets_generator.GENERATION_PERIOD)
 
             if drone_generation_info.height + drone_generation_info.vertical_speed * packets_generator.GENERATION_PERIOD < drone_generation_info.max_height:
-                 drone_generation_info.height += drone_generation_info.vertical_speed 
+                 drone_generation_info.height += drone_generation_info.vertical_speed  * packets_generator.GENERATION_PERIOD
             else:
                  drone_generation_info.vertical_speed = 0
 
