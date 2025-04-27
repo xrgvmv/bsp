@@ -282,32 +282,32 @@ class packets_generator():
         db.session.commit()
         return
     
-    def get_flying_droneid_info_ids():
-        ids = []
-        for drone_generation_info in packets_generator.drone_generation_infos:
-            if drone_generation_info.packetType == PacketType.droneid:
-                ids.append(drone_generation_info.info_id)
-        return ids
+    # def get_flying_droneid_info_ids():
+    #     ids = []
+    #     for drone_generation_info in packets_generator.drone_generation_infos:
+    #         if drone_generation_info.packetType == PacketType.droneid:
+    #             ids.append(drone_generation_info.info_id)
+    #     return ids
 
-    def get_flying_remoteid_info_ids():
-        ids = []
-        for drone_generation_info in packets_generator.drone_generation_infos:
-            if drone_generation_info.packetType == PacketType.remoteid:
-                ids.append(drone_generation_info.info_id)
-        return ids
+    # def get_flying_remoteid_info_ids():
+    #     ids = []
+    #     for drone_generation_info in packets_generator.drone_generation_infos:
+    #         if drone_generation_info.packetType == PacketType.remoteid:
+    #             ids.append(drone_generation_info.info_id)
+    #     return ids
     
 
 
-    def get_current_droneid_flights_ids():
-        ids = []
-        for drone_generation_info in packets_generator.drone_generation_infos:
-            if drone_generation_info.packetType == PacketType.droneid:
-                ids.append(drone_generation_info.flight_id)
-        return ids
+    # def get_current_droneid_flights_ids():
+    #     ids = []
+    #     for drone_generation_info in packets_generator.drone_generation_infos:
+    #         if drone_generation_info.packetType == PacketType.droneid:
+    #             ids.append(drone_generation_info.flight_id)
+    #     return ids
 
-    def get_current_remoteid_flights_ids():
-        ids = []
-        for drone_generation_info in packets_generator.drone_generation_infos:
-            if drone_generation_info.packetType == PacketType.remoteid:
-                ids.append(drone_generation_info.flight_id)
-        return ids
+    # def get_current_remoteid_flights_ids():
+    #     ids = []
+    #     for drone_generation_info in packets_generator.drone_generation_infos:
+    #         if drone_generation_info.packetType == PacketType.remoteid:
+    #             ids.append(drone_generation_info.flight_id)
+    #     return ids

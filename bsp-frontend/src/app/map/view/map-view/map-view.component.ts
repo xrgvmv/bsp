@@ -64,7 +64,7 @@ export class MapViewComponent implements OnInit {
       if (!this.map) return;
 
     L.tileLayer('bsp_map/{z}/{x}/{y}.png', { // 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      maxZoom: 11,
+      maxZoom: 13,
       minZoom: 3,
       attribution:
         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
