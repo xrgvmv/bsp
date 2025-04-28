@@ -361,3 +361,47 @@ def get_remoteid_movements():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@main.route('/api/get_current_flight_based_on_drone_id', methods=['GET'])
+def get_current_flight_based_on_drone_id():
+    try:
+        drone_id = request.args.get('drone_id', type=int)
+        
+        if drone_id is None:
+            return jsonify({"error": "Missing parameters"}), 400
+
+        flight = DroneIDFlight.query.filter_by(droneid_info_id=drone_id).order_by(desc(DroneIDFlight.id)).first()
+        
+        if flight:
+            return jsonify({"droneid_flight": {
+                "flight_id": flight.id,
+                "drone_id": flight.droneid_info_id,
+                "home_longitude": flight.home_longitude,
+                "home_latitude": flight.home_latitude
+            }}), 200
+        else:
+            return jsonify({"message": "No data"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@main.route('/api/get_current_flight_based_on_remote_id', methods=['GET'])
+def get_current_flight_based_on_remote_id():
+    try:
+        remote_id = request.args.get('remote_id', type=int)
+        
+        if remote_id is None:
+            return jsonify({"error": "Missing parameters"}), 400
+
+        flight = RemoteIDFlight.query.filter_by(remoteid_info_id=remote_id).order_by(desc(RemoteIDFlight.id)).first()
+        
+        if flight:
+            return jsonify({"remoteid_flight": {
+                "flight_id": flight.id,
+                "drone_id": flight.remoteid_info_id,
+                "home_longitude": flight.home_lng,
+                "home_latitude": flight.home_lat
+            }}), 200
+        else:
+            return jsonify({"message": "No data"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
