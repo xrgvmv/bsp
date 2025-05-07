@@ -11,11 +11,10 @@ import { FlightService } from '../../service/flight.service';
 import { MatListModule } from '@angular/material/list';
 import * as L from 'leaflet';
 
+// TODO: currently this component interferes with flight-history-control-panel
+
 @Component({
-  selector: 'app-flight-history-control-panel',
-  templateUrl: './flight-history-control-panel.component.html',
-  styleUrls: ['./flight-history-control-panel.component.css'],
-  standalone: true,
+  selector: 'app-flight-current-control',
   imports: [
     CommonModule,
     MatButtonModule,
@@ -25,14 +24,14 @@ import * as L from 'leaflet';
     FormsModule,
     MatListModule,
   ],
+  templateUrl: './flight-current-control.component.html',
+  styleUrl: './flight-current-control.component.css',
 })
-export class FlightHistoryControlPanelComponent
+export class FlightCurrentControlComponent
   implements OnInit, OnDestroy, OnChanges
 {
   @Input() map: L.Map | undefined;
   @Input() mapService: MapService | undefined;
-  private flightSubscription?: Subscription;
-  visible = false;
   @Input() flightData: {
     droneId: number;
     flightId: number;
@@ -41,27 +40,33 @@ export class FlightHistoryControlPanelComponent
   droneId: number | null = null;
   flightId: number | null = null;
   droneType: string | null = null;
-  currentIndex = 0;
   movementData: any[] = [];
+  visible = false;
   flightPath: L.Polyline | null = null;
-  droneMarker: L.Marker | null = null;
-  // droneInfo: any = null; // waiting for api update
+  maxTimestamps = 100; // default limit
+  refreshInterval: any;
 
   constructor(private flightService: FlightService) {}
 
   ngOnInit(): void {
-    this.flightSubscription = this.flightService.flight.subscribe((flight) => {
-      console.log('Flight selected:', flight); // debug
-      this.flightData = flight;
-      this.visible = true;
+    if (
+      this.flightData &&
+      this.flightData.droneId &&
+      this.flightData.flightId
+    ) {
+      this.showPanel(
+        this.flightData.droneId,
+        this.flightData.flightId,
+        this.flightData.droneType
+      );
+    }
 
-      this.showPanel(flight.droneId, flight.flightId, flight.droneType);
-    });
-
-    // setInterval(() => {
-    //   this.refreshMarker();
-    //   console.log('refresh')
-    // }, 1500); // 1.5s
+    this.refreshInterval = setInterval(() => {
+      if (this.visible) {
+        this.refreshMarker();
+        // console.log('refresh'); // debug
+      }
+    }, 500); // 0.5s
   }
 
   ngOnChanges(): void {
@@ -72,13 +77,17 @@ export class FlightHistoryControlPanelComponent
         this.flightData.droneType
       );
     }
+
+    this.refreshInterval = setInterval(() => {
+      if (this.visible) {
+        this.refreshMarker();
+        // console.log('refresh'); // debug
+      }
+    }, 500); // 0.5s
   }
 
   ngOnDestroy(): void {
     this.removeFlightFromMap();
-    if (this.flightSubscription) {
-      this.flightSubscription.unsubscribe();
-    }
   }
 
   refreshMarker(): void {
@@ -92,21 +101,6 @@ export class FlightHistoryControlPanelComponent
     this.droneId = droneId;
     this.flightId = flightId;
     this.droneType = droneType;
-    this.currentIndex = 0;
-
-    // TODO: fix when api is updated
-    // currently this doesn't do anything because api structure doesn't allow to ask for a single drone info based on drone id
-    // if (droneType === 'DroneID') {
-    //   this.mapService?.getDroneidInfo().subscribe((data) => {
-    //     // this.droneInfo = data;
-    //     // console.log('Drone info:', this.droneInfo); // debug
-    //   });
-    // } else if (droneType === 'RemoteID') {
-    //   this.mapService?.getRemoteidInfo().subscribe((data) => {
-    //     // this.droneInfo = data;
-    //     // console.log('Drone info:', this.droneInfo); // debug
-    //   });
-    // }
 
     this.loadFlightData();
   }
@@ -114,6 +108,11 @@ export class FlightHistoryControlPanelComponent
   hidePanel(): void {
     this.visible = false;
     this.removeFlightFromMap();
+
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
   }
 
   loadFlightData(): void {
@@ -148,73 +147,33 @@ export class FlightHistoryControlPanelComponent
   displayFlightOnMap(): void {
     if (!this.map || this.movementData.length === 0) return;
 
-    // console.log("Displaying flight..."); // debug
     this.removeFlightFromMap();
 
-    const coordinates = this.movementData.map((m) => [
+    const limitedData = this.movementData.slice(-this.maxTimestamps).reverse();
+    const coordinates = limitedData.map((m) => [
       m.latitude || m.lat,
       m.longitude || m.lng,
     ]);
 
     this.flightPath = L.polyline(coordinates, {
-      color: 'brown',
+      color: 'blue',
       weight: 4,
       opacity: 0.7,
     }).addTo(this.map);
-
-    this.showTimestampAtIndex(0);
   }
 
-  showTimestampAtIndex(index: number): void {
-    if (!this.map || this.movementData.length === 0) return;
-
-    this.currentIndex = index;
-    const movement = this.movementData[index];
-
-    const lat = movement.latitude || movement.lat;
-    const lng = movement.longitude || movement.lng;
-
-    if (this.droneMarker) {
-      this.droneMarker.setLatLng([lat, lng]);
-    } else {
-      this.droneMarker = L.marker([lat, lng], {
-        icon: L.divIcon({
-          className: 'custom-material-icon',
-          html: '<i class="material-icons" style="color: blue;">keyboard_command</i>',
-          iconSize: [38, 38],
-          popupAnchor: [-0, -20],
-        }),
-      }).addTo(this.map);
+  onMaxTimestampsChange(event: any): void {
+    const value = event.value || event; // Obsługa zarówno zdarzenia, jak i liczby
+    this.maxTimestamps = value;
+    if (this.visible) {
+      this.displayFlightOnMap();
     }
-
-    this.map.panTo([lat, lng]);
-  }
-
-  previousTimestamp(): void {
-    if (this.currentIndex > 0) {
-      this.showTimestampAtIndex(this.currentIndex - 1);
-    }
-  }
-
-  nextTimestamp(): void {
-    if (this.currentIndex < this.movementData.length - 1) {
-      this.showTimestampAtIndex(this.currentIndex + 1);
-    }
-  }
-
-  onSliderChange(value: number): void {
-    this.showTimestampAtIndex(value);
   }
 
   removeFlightFromMap(): void {
     if (this.flightPath && this.map) {
       this.map.removeLayer(this.flightPath);
       this.flightPath = null;
-    }
-
-    if (this.droneMarker && this.map) {
-      this.map.removeLayer(this.droneMarker);
-      this.droneMarker = null;
     }
   }
 }

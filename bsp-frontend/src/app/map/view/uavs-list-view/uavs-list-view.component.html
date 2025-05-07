@@ -180,3 +180,9 @@
     </mat-card-content>
   </mat-card>
 </div>
+<app-flight-current-control
+  *ngIf="flightInfo"
+  [flightData]="flightInfo"
+  [mapService]="mapService"
+  [map]="map"
+></app-flight-current-control>
