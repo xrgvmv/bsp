@@ -36,6 +36,32 @@ export class MapService {
     );
   }
 
+  getDroneidFlightsBasedOnID(
+    droneID: number
+  ): Observable<any> { // add model oneday
+    return this.http.get<DroneidFlightList>(
+      '/api/get_current_flight_based_on_drone_id?',
+      {
+        params: {
+          drone_id: droneID.toString(),
+        },
+      }
+    );
+  }
+
+  getRemoteidFlightsBasedOnID(
+    droneID: number
+  ): Observable<any> { // add model oneday
+    return this.http.get<RemoteidFlightList>(
+      '/api/get_current_flight_based_on_remote_id',
+      {
+        params: {
+          remote_id: droneID.toString(),
+        },
+      }
+    );
+  }
+
   // archive flights
 
   getAllDroneidInfo(): Observable<Droneid_info_list> {
@@ -97,6 +123,37 @@ export class MapService {
         params: {
           drone_id: droneID.toString(),
           flight_id: flightID.toString(),
+        },
+      }
+    );
+  }
+
+  // no limits currently
+  getCurrentRemoteidFlightInfo(
+    droneID: number,
+    limit: number
+  ): Observable<Remoteid_movement_list> {
+    return this.http.get<Remoteid_movement_list>(
+      '/api/get_remoteid_movements',
+      {
+        params: {
+          drone_id: droneID.toString(),
+          // limit: limit.toString(),
+        },
+      }
+    );
+  }
+
+  getCurrentDroneidFlightInfo(
+    droneID: number,
+    limit: number
+  ): Observable<Droneid_movement_list> {
+    return this.http.get<Droneid_movement_list>(
+      '/api/get_droneid_movements',
+      {
+        params: {
+          drone_id: droneID.toString(),
+          // limit: limit.toString(),
         },
       }
     );

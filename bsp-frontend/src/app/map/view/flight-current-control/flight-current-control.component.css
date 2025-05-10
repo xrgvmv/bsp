@@ -1,0 +1,24 @@
+.flight-control-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 350px;
+}
+
+.close-button {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+.slider-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-slider {
+  width: 100%;
+}
