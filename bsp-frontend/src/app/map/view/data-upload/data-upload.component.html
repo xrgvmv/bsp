@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Wybór danych do przesłania</title>
+  <style>
+    .form-box {
+      display: none;
+    }
+
+    .form-box.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Wybierz rodzaj danych:</h2>
+<ul>
+  <!-- <li><button onclick="showForm(1)">DroneID Info</button></li>
+  <li><button onclick="showForm(2)">RemoteID Info</button></li>
+  <li><button onclick="showForm(3)">DroneID Flight</button></li>
+  <li><button onclick="showForm(4)">RemoteID Flight</button></li>
+  <li><button onclick="showForm(5)">DroneID Movement</button></li>
+  <li><button onclick="showForm(6)">RemoteID Movement</button></li> -->
+  <li><button (click)="showForm(1)">DroneID Info</button></li>
+  <li><button (click)="showForm(2)">RemoteID Info</button></li>
+  <li><button (click)="showForm(3)">DroneID Flight</button></li>
+  <li><button (click)="showForm(4)">RemoteID Flight</button></li>
+  <li><button (click)="showForm(5)">DroneID Movement</button></li>
+  <li><button (click)="showForm(6)">RemoteID Movement</button></li>
+</ul>
+
+<div id="form1" class="form-box">
+  <h3>DroneID Info</h3>
+  <label>Dane w formacie JSON:</label><input type="text" id="json_droneid_info">
+  <button (click)="submitForm('droneid_info')">Wyślij</button>
+</div>
+
+<div id="form2" class="form-box">
+  <h3>RemoteID Info</h3>
+  <label>Dane w formacie JSON:</label><input type="text" id="json_remoteid_info">
+  <button (click)="submitForm('remoteid_info')">Wyślij</button>
+</div>
+
+<div id="form3" class="form-box">
+  <h3>DroneID Flight</h3>
+  <label>Dane w formacie JSON:</label><input type="text" id="json_droneid_flight">
+  <button (click)="submitForm('droneid_flight')">Wyślij</button>
+</div>
+
+<div id="form4" class="form-box">
+  <h3>RemoteID Flight</h3>
+  <label>Dane w formacie JSON:</label><input type="text" id="json_remoteid_flight">
+  <button (click)="submitForm('remoteid_flight')">Wyślij</button>
+</div>
+
+<div id="form5" class="form-box">
+  <h3>DroneID Movement</h3>
+  <label>Dane w formacie JSON:</label><input type="text" id="json_droneid_movement">
+  <button (click)="submitForm('droneid_movement')">Wyślij</button>
+</div>
+
+<div id="form6" class="form-box">
+  <h3>RemoteID Movement</h3>
+  <label>Dane w formacie JSON:</label><input type="text" id="json_remoteid_movement">
+  <button (click)="submitForm('remoteid_movement')">Wyślij</button>
+</div>
+
+</body>
+</html>

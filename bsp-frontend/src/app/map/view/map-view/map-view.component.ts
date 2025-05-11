@@ -11,6 +11,7 @@ import { Droneid } from '../../model/droneid.model';
 import { HistoricDataViewIconComponent } from '../historic-data-view-icon/historic-data-view-icon.component';
 import { ImportViewIconComponent } from '../import-view-icon/import-view-icon.component';
 import { FlightHistoryControlPanelComponent } from '../flight-history-control-panel/flight-history-control-panel.component';
+import { DataUploadIconComponent } from '../data-upload-icon/data-upload-icon.component';
 
 @Component({
   selector: 'app-map-view',
@@ -20,6 +21,7 @@ import { FlightHistoryControlPanelComponent } from '../flight-history-control-pa
     HistoricDataViewIconComponent,
     ImportViewIconComponent,
     FlightHistoryControlPanelComponent,
+    DataUploadIconComponent,
   ],
   templateUrl: './map-view.component.html',
   styleUrl: './map-view.component.css',
