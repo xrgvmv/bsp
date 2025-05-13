@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { combineLatest } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { combineLatest, Subscription, interval } from 'rxjs';
+import { switchMap, startWith } from 'rxjs/operators';
 import * as L from 'leaflet';
 import { MapService } from '../../service/map.service';
 import { AboutViewComponent } from '../about-view/about-view.component';
@@ -26,7 +27,7 @@ import { DataUploadIconComponent } from '../data-upload-icon/data-upload-icon.co
   templateUrl: './map-view.component.html',
   styleUrl: './map-view.component.css',
 })
-export class MapViewComponent implements OnInit {
+export class MapViewComponent implements OnInit, OnDestroy {
   map: L.Map | undefined;
   remoteid_drones: Remoteid[] = [];
   droneid_drones: Droneid[] = [];
@@ -35,81 +36,121 @@ export class MapViewComponent implements OnInit {
   private markers: L.Marker[] = [];
   private uavIcon = L.divIcon({
     className: 'custom-material-icon',
-    html: '<i class="material-icons">keyboard_command</i>', // yes this is macbook command key icon
+    html: '<i class="material-icons">keyboard_command</i>',
     iconSize: [38, 38],
     popupAnchor: [-0, -20],
   }) as L.Icon;
+
+  private dataFetchingSubscription: Subscription | undefined;
+  private tileLayerAdded = false;
 
   constructor(public service: MapService) {}
 
   ngOnInit(): void {
     this.initMap();
 
-    // this is needed to fix incorrect map rendering, might try to find better solution later
-    this.map?.whenReady(() => {
-      setTimeout(() => {
-        this.map?.invalidateSize();
-      }, 20);
-    });
+    this.dataFetchingSubscription = interval(1500)
+      .pipe(
+        startWith(0),
+        switchMap(() =>
+          combineLatest([
+            this.service.getDroneidInfo(),
+            this.service.getRemoteidInfo(),
+            this.service.getDroneidMovementInfo(),
+            this.service.getRemoteidMovementInfo(),
+          ])
+        )
+      )
+      .subscribe(
+        ([droneidData, remoteidData, droneidMovements, remoteidMovements]) => {
+          this.droneid_drones = droneidData.droneid_info_list;
+          this.remoteid_drones = remoteidData.remoteid_info_list;
+          this.droneids_movement = droneidMovements.droneid_movement_list;
+          this.remoteids_movement = remoteidMovements.remoteid_movement_list;
 
-    setInterval(() => {
-      this.startFetchingMapView();
-    }, 1500); // 1.5s
+          if (this.tileLayerAdded) {
+            this.updateMapMarkers();
+          }
+        },
+        (error) => {
+          console.error('Error fetching map data:', error);
+        }
+      );
   }
 
-  private initMap(): void {
+  ngOnDestroy(): void {
+    if (this.dataFetchingSubscription) {
+      this.dataFetchingSubscription.unsubscribe();
+    }
+    this.map?.remove();
+  }
+
+  private async testOnlineConnection(): Promise<boolean> {
+    if (!navigator.onLine) {
+      return false;
+    }
+    const testUrl = 'https://tile.openstreetmap.org/1/1/1.png';
+    try {
+      await fetch(testUrl, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        cache: 'no-store',
+        signal: AbortSignal.timeout(2000)
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private async initMap(): Promise<void> {
     this.map = L.map('map', {
-      center: [54.371684, 18.612406], // pg weti
+      center: [54.371684, 18.612406], //pg weti
       zoom: 10,
     });
 
-      if (!this.map) return;
+    if (!this.map) {
+      return;
+    }
 
-      // offline maps
-    // L.tileLayer('bsp_map/{z}/{x}/{y}.png', { // 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    //   maxZoom: 11,
-    //   minZoom: 3,
-    //   attribution:
-    //     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    // }).addTo(this.map);
+    const isOnline = await this.testOnlineConnection();
 
-      // online maps
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { // 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    if (isOnline) {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         minZoom: 2,
         attribution:
-          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }).addTo(this.map);
-  }
+    } else {
+      L.tileLayer('bsp_map/{z}/{x}/{y}.png', {
+        maxZoom: 13,
+        minZoom: 3,
+        attribution:
+          '© <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(this.map);
+    }
+    this.tileLayerAdded = true;
 
-  private startFetchingMapView(): void {
-    combineLatest([
-      this.service.getDroneidInfo(),
-      this.service.getRemoteidInfo(),
-      this.service.getDroneidMovementInfo(),
-      this.service.getRemoteidMovementInfo(),
-    ]).subscribe(
-      ([droneidData, remoteidData, droneidMovements, remoteidMovements]) => {
-        this.droneid_drones = droneidData.droneid_info_list;
-        this.remoteid_drones = remoteidData.remoteid_info_list;
-        this.droneids_movement = droneidMovements.droneid_movement_list;
-        this.remoteids_movement = remoteidMovements.remoteid_movement_list;
-
-        // console.log('Droneid drones:', this.droneid_drones); // debug
-        // console.log('Remoteid drones:', this.remoteid_drones); // debug
-        // console.log('Droneids movement:', this.droneids_movement); // debug
-        // console.log('Remoteids movement:', this.remoteids_movement); // debug
-
-        this.updateMapMarkers();
-      }
-    );
+    this.map?.whenReady(() => {
+      setTimeout(() => {
+        this.map?.invalidateSize();
+        if (this.droneid_drones.length > 0 || this.remoteid_drones.length > 0) {
+          this.updateMapMarkers();
+        }
+      }, 30);
+    });
   }
 
   private updateMapMarkers(): void {
-    if (!this.map) {
-      console.error('Map not initialized');
+    if (!this.map || !this.tileLayerAdded) {
       return;
     }
+
+    const remoteidDronesLength = this.remoteid_drones?.length ?? 0;
+    const droneidDronesLength = this.droneid_drones?.length ?? 0;
+    const remoteidMovementsLength = this.remoteids_movement?.length ?? 0;
+    const droneidMovementsLength = this.droneids_movement?.length ?? 0;
 
     if (
       !this.remoteid_drones ||
@@ -117,66 +158,68 @@ export class MapViewComponent implements OnInit {
       !this.remoteids_movement ||
       !this.droneids_movement
     ) {
-      console.error('Some data is missing:', {
-        remoteidDronesLength: this.remoteid_drones?.length || 0,
-        droneidDronesLength: this.droneid_drones?.length || 0,
-        remoteidMovementsLength: this.remoteids_movement?.length || 0,
-        droneidMovementsLength: this.droneids_movement?.length || 0,
-      });
-      return;
+      // console.warn można zostawić lub usunąć, zależnie od preferencji debugowania
     }
 
-    this.clearMarkers(); // clear all markers
+    this.clearMarkers();
 
-    this.addMarkers(
-      this.remoteid_drones,
-      this.remoteids_movement,
-      this.uavIcon,
-      'RemoteID'
-    ); // remoteid
-    this.addMarkers(
-      this.droneid_drones,
-      this.droneids_movement,
-      this.uavIcon,
-      'DroneID'
-    ); // droneid
+    if (this.remoteid_drones && this.remoteids_movement) {
+      this.addMarkers(
+        this.remoteid_drones,
+        this.remoteids_movement,
+        this.uavIcon,
+        'RemoteID'
+      );
+    }
+    if (this.droneid_drones && this.droneids_movement) {
+      this.addMarkers(
+        this.droneid_drones,
+        this.droneids_movement,
+        this.uavIcon,
+        'DroneID'
+      );
+    }
   }
 
   private clearMarkers(): void {
+    if (!this.map) return;
     this.markers.forEach((marker) => this.map!.removeLayer(marker));
     this.markers = [];
   }
 
   private addMarkers(
-    drones: any[],
-    movements: any[],
+    drones: Remoteid[] | Droneid[],
+    movements: RemoteidMovement[] | DroneidMovement[],
     icon: L.Icon,
     type: string
   ): void {
+    if (!this.map) return;
+
     drones.forEach((drone) => {
-      const movement =
+      const movement = movements.find((m: any) =>
         type === 'RemoteID'
-          ? movements.find((m: any) => m.remoteid_info_id === drone.id)
-          : movements.find((m: any) => m.droneid_info_id === drone.id);
+          ? m.remoteid_info_id === (drone as Remoteid).id
+          : m.droneid_info_id === (drone as Droneid).id
+      );
 
       if (movement) {
-        const latitude = movement.lat || movement.latitude;
-        const longitude = movement.lng || movement.longitude;
+        const latitude = (movement as any).lat ?? (movement as any).latitude;
+        const longitude = (movement as any).lng ?? (movement as any).longitude;
 
-        if (latitude && longitude) {
+        if (typeof latitude === 'number' && typeof longitude === 'number') {
           const marker = L.marker([latitude, longitude], {
             icon,
           }).addTo(this.map!);
 
           marker.bindPopup(
-            `<b>Rodzaj protokołu:</b> ${type}<br><b>Numer seryjny:</b> ${drone.serial_number}<br><b>Latitude:</b> ${latitude}<br><b>Longitude:</b> ${longitude}`
+            `<b>Rodzaj protokołu:</b> ${type}<br><b>Numer seryjny:</b> ${drone.serial_number}<br><b>Latitude:</b> ${latitude.toFixed(6)}<br><b>Longitude:</b> ${longitude.toFixed(6)}`
           );
           this.markers.push(marker);
         }
       } else {
-        console.log(
-          `No movement data for ${type} drone ID: ${drone.id}, Serial number: ${drone.serial_number}`
-        );
+        // console.log(
+        //   `No movement data for ${type} drone ID: ${drone.id}, Serial number: ${drone.serial_number}`
+        // );
       }
     });
   }
