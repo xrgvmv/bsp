@@ -64,14 +64,23 @@ def get_remoteid_flight():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+def save_records(ModelClass, data):
+    if not isinstance(data, list):
+        data = [data]
+
+    records = [ModelClass(**item) for item in data]
+    db.session.add_all(records)
+    db.session.commit()
+    return jsonify({
+        'message': f'Saved {len(records)} records',
+        'ids': [r.id for r in records]
+    }), 201
+
 @routes_database.route('/api/routes_database/post/droneid_info', methods=['POST'])
-def post_droneid_info():    
+def post_droneid_info():
     try:
         data = request.get_json()
-        record = DroneIDInfo(**data)
-        db.session.add(record)
-        db.session.commit()
-        return jsonify({'message': 'Saved', 'id': record.id}), 201
+        return save_records(DroneIDInfo, data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -79,10 +88,7 @@ def post_droneid_info():
 def post_droneid_movement():
     try:
         data = request.get_json()
-        record = DroneIDMovement(**data)
-        db.session.add(record)
-        db.session.commit()
-        return jsonify({'message': 'Saved', 'id': record.id}), 201
+        return save_records(DroneIDMovement, data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -90,10 +96,7 @@ def post_droneid_movement():
 def post_droneid_flight():
     try:
         data = request.get_json()
-        record = DroneIDFlight(**data)
-        db.session.add(record)
-        db.session.commit()
-        return jsonify({'message': 'Saved', 'id': record.id}), 201
+        return save_records(DroneIDFlight, data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -101,10 +104,7 @@ def post_droneid_flight():
 def post_remoteid_info():
     try:
         data = request.get_json()
-        record = RemoteIDInfo(**data)
-        db.session.add(record)
-        db.session.commit()
-        return jsonify({'message': 'Saved', 'id': record.id}), 201
+        return save_records(RemoteIDInfo, data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -112,10 +112,7 @@ def post_remoteid_info():
 def post_remoteid_flight():
     try:
         data = request.get_json()
-        record = RemoteIDFlight(**data)
-        db.session.add(record)
-        db.session.commit()
-        return jsonify({'message': 'Saved', 'id': record.id}), 201
+        return save_records(RemoteIDFlight, data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -123,9 +120,6 @@ def post_remoteid_flight():
 def post_remoteid_movement():
     try:
         data = request.get_json()
-        record = RemoteIDMovement(**data)
-        db.session.add(record)
-        db.session.commit()
-        return jsonify({'message': 'Saved', 'id': record.id}), 201
+        return save_records(RemoteIDMovement, data)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
