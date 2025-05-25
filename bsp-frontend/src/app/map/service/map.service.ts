@@ -158,4 +158,28 @@ export class MapService {
       }
     );
   }
+
+  postDroneidInfo(formData: any): Observable<any> {
+    return this.http.post('/api/routes_database/post/droneid_info', formData);
+  }
+ 
+  postRemoteidInfo(formData: any): Observable<any> {
+    return this.http.post('/api/routes_database/post/remoteid_info', formData);
+  }
+
+  postDroneidMovement(formData: any): Observable<any> {
+    return this.http.post('/api/routes_database/post/droneid_movement', formData);
+  }
+
+  postRemoteidMovement(formData: any): Observable<any> {
+    return this.http.post('/api/routes_database/post/remoteid_movement', formData);
+  }
+
+  postDroneidFlight(formData: any): Observable<any> {
+    return this.http.post('/api/routes_database/post/droneid_flight', formData);
+  }
+
+  postRemoteidFlight(formData: any): Observable<any> {
+    return this.http.post('/api/routes_database/post/remoteid_flight', formData);
+  }
 }

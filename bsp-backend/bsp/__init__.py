@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from .routes import main
+from .routes_database import routes_database
 from .database import db
 
 def create_app():
@@ -20,6 +21,7 @@ def create_app():
     from bsp.models.remoteid_movement import RemoteIDMovement
 
     app.register_blueprint(main)
+    app.register_blueprint(routes_database)
 
     return app
  
